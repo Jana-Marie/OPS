@@ -646,7 +646,7 @@ F 1 "DFU" V 7705 1302 50  0000 R CNN
 F 2 "Button_Switch_SMD:SW_SPST_EVQP7C" H 7750 1550 50  0001 C CNN
 F 3 "~" H 7750 1550 50  0001 C CNN
 	1    7750 1350
-	0    -1   -1   0   
+	0    1    1    0   
 $EndComp
 Wire Wire Line
 	7750 1600 7750 1550
