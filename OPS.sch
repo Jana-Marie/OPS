@@ -46,8 +46,6 @@ F 3 "~" H 2000 1300 50  0001 C CNN
 	1    2000 1300
 	0    -1   -1   0   
 $EndComp
-Text Notes 3150 7450 0    50   ~ 0
-Todo:\nUSB Power CHECK\nUSB Data CHECK\nISENS CHECK\nUSENS CHECK\nTSENS?\nController MOSTLY CHECK\nSTUSB CHECK\nMP88 CHECK\nBanana CHECK\nProtection CHECK (i guess)\nLED between banana CHECK\nStackable\nOutput FET CHECK
 $Comp
 L otter:GND #PWR0101
 U 1 1 60775086
