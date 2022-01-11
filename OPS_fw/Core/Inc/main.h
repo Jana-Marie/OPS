@@ -47,7 +47,16 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-
+struct ops {
+  float vbus;
+  float vout;
+  float iout;
+  float vset;
+  float iset;
+  float tc;
+  float tref;
+  uint8_t en;
+};
 /* USER CODE END EM */
 
 /* Exported functions prototypes ---------------------------------------------*/

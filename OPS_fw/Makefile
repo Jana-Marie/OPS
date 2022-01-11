@@ -70,6 +70,19 @@ Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
 Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
 
+C_SOURCES += \
+Src/scpi-def.c \
+libscpi/src/error.c \
+libscpi/src/expression.c \
+libscpi/src/fifo.c \
+libscpi/src/ieee488.c \
+libscpi/src/lexer.c \
+libscpi/src/minimal.c \
+libscpi/src/parser.c \
+libscpi/src/units.c \
+libscpi/src/utils.c \
+Src/scpi-com.c
+
 # ASM sources
 ASM_SOURCES =  \
 startup_stm32f072xb.s
@@ -106,7 +119,6 @@ CPU = -mcpu=cortex-m0
 
 # float-abi
 
-
 # mcu
 MCU = $(CPU) -mthumb $(FPU) $(FLOAT-ABI)
 
@@ -135,6 +147,13 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Device/ST/STM32F0xx/Include \
 -IDrivers/CMSIS/Include
 
+C_INCLUDES +=  \
+-Iusb_cdc_g4/STM32_USB_Device_Library/Class/CDC/Inc \
+-Iusb_cdc_g4/STM32_USB_Device_Library/Core/Inc \
+-Ilibscpi/inc \
+-Iusb_cdc_g4/Inc
+
+
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections
 
@@ -158,7 +177,7 @@ LDSCRIPT = STM32F072CBTx_FLASH.ld
 # libraries
 LIBS = -lc -lm -lnosys
 LIBDIR =
-LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections
+LDFLAGS = $(MCU) -specs=nano.specs -T$(LDSCRIPT) $(LIBDIR) $(LIBS) -Wl,-Map=$(BUILD_DIR)/$(TARGET).map,--cref -Wl,--gc-sections -u _printf_float
 
 # default action: build all
 all: $(BUILD_DIR)/$(TARGET).elf $(BUILD_DIR)/$(TARGET).hex $(BUILD_DIR)/$(TARGET).bin

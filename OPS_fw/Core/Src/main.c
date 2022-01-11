@@ -1,6 +1,10 @@
 #include "main.h"
 #include "usb_device.h"
 #include "MP8862.h"
+#include "usbd_cdc_if.h"
+#include "usb_device.h"
+#include "scpi/scpi.h"
+#include "scpi-def.h"
 
 ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
@@ -22,9 +26,14 @@ static void MX_TIM2_Init(void);
 
 static uint32_t adc[8];
 struct MP8862_t MP8862;
+uint8_t adc_ready_flag = 0;
 
-uint16_t sine[60] = {4500,4970,5436,5891,6330,6750,7145,7511,7844,8141,8397,8611,8780,8902,8975,9000,8975,8902,8780,8611,8397,8141,7844,7511,7145,6750,6330,5891,5436,4970,
-4500,4030,3564,3109,2670,2250,1855,1489,1156,859,603,389,220,98,25,0,25,98,220,389,603,859,1156,1489,1855,2250,2670,3109,3564,4030};
+struct ops ops;
+
+extern uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
+extern uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
+uint8_t is_new_data_ready;
+uint16_t new_data_length;
 
 int main(void)
 {
@@ -42,11 +51,11 @@ int main(void)
   HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin, 1);
   HAL_GPIO_WritePin(GPIOB, LED_RED_Pin, 1);
 
-  HAL_Delay(500);
+  HAL_Delay(100);
 
   MP8862_init(&MP8862, &hi2c2, MP8862_ADDR_0x69);
+  MP8862_setVoltageSetpoint_mV(&MP8862, 0);
   MP8862_setCurrentLimit_mA(&MP8862, 400);
-  MP8862_setVoltageSetpoint_mV(&MP8862, 6000);
   uint8_t isReady = MP8862_setEnable(&MP8862, 1);
 
   if(isReady){
@@ -58,13 +67,36 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc, adc, 8);
   HAL_TIM_Base_Start_IT(&htim2);
 
+  SCPI_Init(&scpi_context,
+    scpi_commands,
+    &scpi_interface,
+    scpi_units_def,
+    SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+    scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+    scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+
   while (1)
   {
     // Sine-Ramp for testing
-    for(uint8_t i = 0; i < 60; i++){
-      MP8862_setVoltageSetpoint_mV(&MP8862, sine[i]);
-      HAL_GPIO_TogglePin(GPIOB, LED_ACT_Pin);
-      HAL_Delay(25);
+    //for(uint8_t i = 0; i < 60; i++){
+    //  MP8862_setVoltageSetpoint_mV(&MP8862, sine[i]);
+    //  HAL_GPIO_TogglePin(GPIOB, LED_ACT_Pin);
+    //  HAL_Delay(25);
+    //}
+    HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 0);
+
+    if (adc_ready_flag) {
+      ops.vbus = adc[2]/4095.0*3.3*7.471;
+      ops.vout = adc[1]/4095.0*3.3*7.471;
+      ops.iout = (adc[0]/4095.0*3.3*1.659)/(0.01*(2370/33));
+      ops.tref = (((adc[4]/4095.0)*3.3)-0.5)/0.01;
+      ops.tc   = ((adc[3]-120)*92)/1000+ops.tref;
+    }
+
+    if (is_new_data_ready) {
+      HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 1);
+      SCPI_Input(&scpi_context, UserRxBufferFS, new_data_length);
+      is_new_data_ready = 0;
     }
   }
 }
