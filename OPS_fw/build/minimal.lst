@@ -1,0 +1,913 @@
+ARM GAS  /tmp/ccOzT0EZ.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"minimal.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.SCPI_Stub,"ax",%progbits
+  16              		.align	1
+  17              		.global	SCPI_Stub
+  18              		.arch armv6s-m
+  19              		.syntax unified
+  20              		.code	16
+  21              		.thumb_func
+  22              		.fpu softvfp
+  24              	SCPI_Stub:
+  25              	.LVL0:
+  26              	.LFB0:
+  27              		.file 1 "libscpi/src/minimal.c"
+   1:libscpi/src/minimal.c **** /*-
+   2:libscpi/src/minimal.c ****  * BSD 2-Clause License
+   3:libscpi/src/minimal.c ****  *
+   4:libscpi/src/minimal.c ****  * Copyright (c) 2012-2018, Jan Breuer
+   5:libscpi/src/minimal.c ****  * All rights reserved.
+   6:libscpi/src/minimal.c ****  *
+   7:libscpi/src/minimal.c ****  * Redistribution and use in source and binary forms, with or without
+   8:libscpi/src/minimal.c ****  * modification, are permitted provided that the following conditions are met:
+   9:libscpi/src/minimal.c ****  *
+  10:libscpi/src/minimal.c ****  * * Redistributions of source code must retain the above copyright notice, this
+  11:libscpi/src/minimal.c ****  *   list of conditions and the following disclaimer.
+  12:libscpi/src/minimal.c ****  *
+  13:libscpi/src/minimal.c ****  * * Redistributions in binary form must reproduce the above copyright notice,
+  14:libscpi/src/minimal.c ****  *   this list of conditions and the following disclaimer in the documentation
+  15:libscpi/src/minimal.c ****  *   and/or other materials provided with the distribution.
+  16:libscpi/src/minimal.c ****  *
+  17:libscpi/src/minimal.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  18:libscpi/src/minimal.c ****  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  19:libscpi/src/minimal.c ****  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  20:libscpi/src/minimal.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  21:libscpi/src/minimal.c ****  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  22:libscpi/src/minimal.c ****  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  23:libscpi/src/minimal.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  24:libscpi/src/minimal.c ****  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  25:libscpi/src/minimal.c ****  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  26:libscpi/src/minimal.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  27:libscpi/src/minimal.c ****  */
+  28:libscpi/src/minimal.c **** 
+  29:libscpi/src/minimal.c **** /**
+  30:libscpi/src/minimal.c ****  * @file   scpi_minimal.c
+  31:libscpi/src/minimal.c ****  * @date   Thu Nov 15 10:58:45 UTC 2012
+ARM GAS  /tmp/ccOzT0EZ.s 			page 2
+
+
+  32:libscpi/src/minimal.c ****  *
+  33:libscpi/src/minimal.c ****  * @brief  SCPI minimal implementation
+  34:libscpi/src/minimal.c ****  *
+  35:libscpi/src/minimal.c ****  *
+  36:libscpi/src/minimal.c ****  */
+  37:libscpi/src/minimal.c **** 
+  38:libscpi/src/minimal.c **** 
+  39:libscpi/src/minimal.c **** #include "scpi/parser.h"
+  40:libscpi/src/minimal.c **** #include "scpi/minimal.h"
+  41:libscpi/src/minimal.c **** #include "scpi/constants.h"
+  42:libscpi/src/minimal.c **** #include "scpi/error.h"
+  43:libscpi/src/minimal.c **** #include "scpi/ieee488.h"
+  44:libscpi/src/minimal.c **** #include "utils_private.h"
+  45:libscpi/src/minimal.c **** 
+  46:libscpi/src/minimal.c **** /**
+  47:libscpi/src/minimal.c ****  * Command stub function
+  48:libscpi/src/minimal.c ****  * @param context
+  49:libscpi/src/minimal.c ****  * @return
+  50:libscpi/src/minimal.c ****  */
+  51:libscpi/src/minimal.c **** scpi_result_t SCPI_Stub(scpi_t * context) {
+  28              		.loc 1 51 43 view -0
+  29              		.cfi_startproc
+  30              		@ args = 0, pretend = 0, frame = 0
+  31              		@ frame_needed = 0, uses_anonymous_args = 0
+  32              		@ link register save eliminated.
+  52:libscpi/src/minimal.c ****     (void) context;
+  33              		.loc 1 52 5 view .LVU1
+  53:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+  34              		.loc 1 53 5 view .LVU2
+  54:libscpi/src/minimal.c **** }
+  35              		.loc 1 54 1 is_stmt 0 view .LVU3
+  36 0000 0120     		movs	r0, #1
+  37              	.LVL1:
+  38              		.loc 1 54 1 view .LVU4
+  39              		@ sp needed
+  40 0002 7047     		bx	lr
+  41              		.cfi_endproc
+  42              	.LFE0:
+  44              		.section	.text.SCPI_StubQ,"ax",%progbits
+  45              		.align	1
+  46              		.global	SCPI_StubQ
+  47              		.syntax unified
+  48              		.code	16
+  49              		.thumb_func
+  50              		.fpu softvfp
+  52              	SCPI_StubQ:
+  53              	.LVL2:
+  54              	.LFB1:
+  55:libscpi/src/minimal.c **** 
+  56:libscpi/src/minimal.c **** /**
+  57:libscpi/src/minimal.c ****  * Query command stub function
+  58:libscpi/src/minimal.c ****  * @param context
+  59:libscpi/src/minimal.c ****  * @return
+  60:libscpi/src/minimal.c ****  */
+  61:libscpi/src/minimal.c **** scpi_result_t SCPI_StubQ(scpi_t * context) {
+  55              		.loc 1 61 44 is_stmt 1 view -0
+  56              		.cfi_startproc
+ARM GAS  /tmp/ccOzT0EZ.s 			page 3
+
+
+  57              		@ args = 0, pretend = 0, frame = 0
+  58              		@ frame_needed = 0, uses_anonymous_args = 0
+  59              		.loc 1 61 44 is_stmt 0 view .LVU6
+  60 0000 10B5     		push	{r4, lr}
+  61              	.LCFI0:
+  62              		.cfi_def_cfa_offset 8
+  63              		.cfi_offset 4, -8
+  64              		.cfi_offset 14, -4
+  62:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, 0);
+  65              		.loc 1 62 5 is_stmt 1 view .LVU7
+  66 0002 0021     		movs	r1, #0
+  67 0004 FFF7FEFF 		bl	SCPI_ResultInt32
+  68              	.LVL3:
+  63:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+  69              		.loc 1 63 5 view .LVU8
+  64:libscpi/src/minimal.c **** }
+  70              		.loc 1 64 1 is_stmt 0 view .LVU9
+  71 0008 0120     		movs	r0, #1
+  72              		@ sp needed
+  73 000a 10BD     		pop	{r4, pc}
+  74              		.cfi_endproc
+  75              	.LFE1:
+  77              		.section	.rodata.SCPI_SystemVersionQ.str1.4,"aMS",%progbits,1
+  78              		.align	2
+  79              	.LC0:
+  80 0000 31393939 		.ascii	"1999.0\000"
+  80      2E3000
+  81              		.section	.text.SCPI_SystemVersionQ,"ax",%progbits
+  82              		.align	1
+  83              		.global	SCPI_SystemVersionQ
+  84              		.syntax unified
+  85              		.code	16
+  86              		.thumb_func
+  87              		.fpu softvfp
+  89              	SCPI_SystemVersionQ:
+  90              	.LVL4:
+  91              	.LFB2:
+  65:libscpi/src/minimal.c **** 
+  66:libscpi/src/minimal.c **** /**
+  67:libscpi/src/minimal.c ****  * SYSTem:VERSion?
+  68:libscpi/src/minimal.c ****  * @param context
+  69:libscpi/src/minimal.c ****  * @return
+  70:libscpi/src/minimal.c ****  */
+  71:libscpi/src/minimal.c **** scpi_result_t SCPI_SystemVersionQ(scpi_t * context) {
+  92              		.loc 1 71 53 is_stmt 1 view -0
+  93              		.cfi_startproc
+  94              		@ args = 0, pretend = 0, frame = 0
+  95              		@ frame_needed = 0, uses_anonymous_args = 0
+  96              		.loc 1 71 53 is_stmt 0 view .LVU11
+  97 0000 10B5     		push	{r4, lr}
+  98              	.LCFI1:
+  99              		.cfi_def_cfa_offset 8
+ 100              		.cfi_offset 4, -8
+ 101              		.cfi_offset 14, -4
+  72:libscpi/src/minimal.c ****     SCPI_ResultMnemonic(context, SCPI_STD_VERSION_REVISION);
+ 102              		.loc 1 72 5 is_stmt 1 view .LVU12
+ 103 0002 0622     		movs	r2, #6
+ARM GAS  /tmp/ccOzT0EZ.s 			page 4
+
+
+ 104 0004 0249     		ldr	r1, .L4
+ 105 0006 FFF7FEFF 		bl	SCPI_ResultCharacters
+ 106              	.LVL5:
+  73:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 107              		.loc 1 73 5 view .LVU13
+  74:libscpi/src/minimal.c **** }
+ 108              		.loc 1 74 1 is_stmt 0 view .LVU14
+ 109 000a 0120     		movs	r0, #1
+ 110              		@ sp needed
+ 111 000c 10BD     		pop	{r4, pc}
+ 112              	.L5:
+ 113 000e C046     		.align	2
+ 114              	.L4:
+ 115 0010 00000000 		.word	.LC0
+ 116              		.cfi_endproc
+ 117              	.LFE2:
+ 119              		.section	.text.SCPI_SystemErrorNextQ,"ax",%progbits
+ 120              		.align	1
+ 121              		.global	SCPI_SystemErrorNextQ
+ 122              		.syntax unified
+ 123              		.code	16
+ 124              		.thumb_func
+ 125              		.fpu softvfp
+ 127              	SCPI_SystemErrorNextQ:
+ 128              	.LVL6:
+ 129              	.LFB3:
+  75:libscpi/src/minimal.c **** 
+  76:libscpi/src/minimal.c **** /**
+  77:libscpi/src/minimal.c ****  * SYSTem:ERRor[:NEXT]?
+  78:libscpi/src/minimal.c ****  * @param context
+  79:libscpi/src/minimal.c ****  * @return
+  80:libscpi/src/minimal.c ****  */
+  81:libscpi/src/minimal.c **** scpi_result_t SCPI_SystemErrorNextQ(scpi_t * context) {
+ 130              		.loc 1 81 55 is_stmt 1 view -0
+ 131              		.cfi_startproc
+ 132              		@ args = 0, pretend = 0, frame = 8
+ 133              		@ frame_needed = 0, uses_anonymous_args = 0
+ 134              		.loc 1 81 55 is_stmt 0 view .LVU16
+ 135 0000 10B5     		push	{r4, lr}
+ 136              	.LCFI2:
+ 137              		.cfi_def_cfa_offset 8
+ 138              		.cfi_offset 4, -8
+ 139              		.cfi_offset 14, -4
+ 140 0002 82B0     		sub	sp, sp, #8
+ 141              	.LCFI3:
+ 142              		.cfi_def_cfa_offset 16
+ 143 0004 0400     		movs	r4, r0
+  82:libscpi/src/minimal.c ****     scpi_error_t error;
+ 144              		.loc 1 82 5 is_stmt 1 view .LVU17
+  83:libscpi/src/minimal.c ****     SCPI_ErrorPop(context, &error);
+ 145              		.loc 1 83 5 view .LVU18
+ 146 0006 01A9     		add	r1, sp, #4
+ 147 0008 FFF7FEFF 		bl	SCPI_ErrorPop
+ 148              	.LVL7:
+  84:libscpi/src/minimal.c ****     SCPI_ResultError(context, &error);
+ 149              		.loc 1 84 5 view .LVU19
+ 150 000c 01A9     		add	r1, sp, #4
+ARM GAS  /tmp/ccOzT0EZ.s 			page 5
+
+
+ 151 000e 2000     		movs	r0, r4
+ 152 0010 FFF7FEFF 		bl	SCPI_ResultError
+ 153              	.LVL8:
+  85:libscpi/src/minimal.c **** #if USE_DEVICE_DEPENDENT_ERROR_INFORMATION
+  86:libscpi/src/minimal.c ****     SCPIDEFINE_free(&context->error_info_heap, error.device_dependent_info, false);
+  87:libscpi/src/minimal.c **** #endif
+  88:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 154              		.loc 1 88 5 view .LVU20
+  89:libscpi/src/minimal.c **** }
+ 155              		.loc 1 89 1 is_stmt 0 view .LVU21
+ 156 0014 0120     		movs	r0, #1
+ 157 0016 02B0     		add	sp, sp, #8
+ 158              		@ sp needed
+ 159              	.LVL9:
+ 160              		.loc 1 89 1 view .LVU22
+ 161 0018 10BD     		pop	{r4, pc}
+ 162              		.cfi_endproc
+ 163              	.LFE3:
+ 165              		.section	.text.SCPI_SystemErrorCountQ,"ax",%progbits
+ 166              		.align	1
+ 167              		.global	SCPI_SystemErrorCountQ
+ 168              		.syntax unified
+ 169              		.code	16
+ 170              		.thumb_func
+ 171              		.fpu softvfp
+ 173              	SCPI_SystemErrorCountQ:
+ 174              	.LVL10:
+ 175              	.LFB4:
+  90:libscpi/src/minimal.c **** 
+  91:libscpi/src/minimal.c **** /**
+  92:libscpi/src/minimal.c ****  * SYSTem:ERRor:COUNt?
+  93:libscpi/src/minimal.c ****  * @param context
+  94:libscpi/src/minimal.c ****  * @return
+  95:libscpi/src/minimal.c ****  */
+  96:libscpi/src/minimal.c **** scpi_result_t SCPI_SystemErrorCountQ(scpi_t * context) {
+ 176              		.loc 1 96 56 is_stmt 1 view -0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 180              		.loc 1 96 56 is_stmt 0 view .LVU24
+ 181 0000 10B5     		push	{r4, lr}
+ 182              	.LCFI4:
+ 183              		.cfi_def_cfa_offset 8
+ 184              		.cfi_offset 4, -8
+ 185              		.cfi_offset 14, -4
+ 186 0002 0400     		movs	r4, r0
+  97:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_ErrorCount(context));
+ 187              		.loc 1 97 5 is_stmt 1 view .LVU25
+ 188 0004 FFF7FEFF 		bl	SCPI_ErrorCount
+ 189              	.LVL11:
+ 190              		.loc 1 97 5 is_stmt 0 view .LVU26
+ 191 0008 0100     		movs	r1, r0
+ 192 000a 2000     		movs	r0, r4
+ 193 000c FFF7FEFF 		bl	SCPI_ResultInt32
+ 194              	.LVL12:
+  98:libscpi/src/minimal.c **** 
+  99:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ARM GAS  /tmp/ccOzT0EZ.s 			page 6
+
+
+ 195              		.loc 1 99 5 is_stmt 1 view .LVU27
+ 100:libscpi/src/minimal.c **** }
+ 196              		.loc 1 100 1 is_stmt 0 view .LVU28
+ 197 0010 0120     		movs	r0, #1
+ 198              		@ sp needed
+ 199              	.LVL13:
+ 200              		.loc 1 100 1 view .LVU29
+ 201 0012 10BD     		pop	{r4, pc}
+ 202              		.cfi_endproc
+ 203              	.LFE4:
+ 205              		.section	.text.SCPI_StatusQuestionableConditionQ,"ax",%progbits
+ 206              		.align	1
+ 207              		.global	SCPI_StatusQuestionableConditionQ
+ 208              		.syntax unified
+ 209              		.code	16
+ 210              		.thumb_func
+ 211              		.fpu softvfp
+ 213              	SCPI_StatusQuestionableConditionQ:
+ 214              	.LVL14:
+ 215              	.LFB5:
+ 101:libscpi/src/minimal.c **** 
+ 102:libscpi/src/minimal.c **** /**
+ 103:libscpi/src/minimal.c ****  * STATus:QUEStionable:CONDition?
+ 104:libscpi/src/minimal.c ****  * @param context
+ 105:libscpi/src/minimal.c ****  * @return
+ 106:libscpi/src/minimal.c ****  */
+ 107:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusQuestionableConditionQ(scpi_t * context) {
+ 216              		.loc 1 107 67 is_stmt 1 view -0
+ 217              		.cfi_startproc
+ 218              		@ args = 0, pretend = 0, frame = 0
+ 219              		@ frame_needed = 0, uses_anonymous_args = 0
+ 220              		.loc 1 107 67 is_stmt 0 view .LVU31
+ 221 0000 10B5     		push	{r4, lr}
+ 222              	.LCFI5:
+ 223              		.cfi_def_cfa_offset 8
+ 224              		.cfi_offset 4, -8
+ 225              		.cfi_offset 14, -4
+ 226 0002 0400     		movs	r4, r0
+ 108:libscpi/src/minimal.c ****     /* return value */
+ 109:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUESC));
+ 227              		.loc 1 109 5 is_stmt 1 view .LVU32
+ 228              		.loc 1 109 31 is_stmt 0 view .LVU33
+ 229 0004 0921     		movs	r1, #9
+ 230 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 231              	.LVL15:
+ 232              		.loc 1 109 31 view .LVU34
+ 233 000a 0100     		movs	r1, r0
+ 234              		.loc 1 109 5 view .LVU35
+ 235 000c 2000     		movs	r0, r4
+ 236 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 237              	.LVL16:
+ 110:libscpi/src/minimal.c **** 
+ 111:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 238              		.loc 1 111 5 is_stmt 1 view .LVU36
+ 112:libscpi/src/minimal.c **** }
+ 239              		.loc 1 112 1 is_stmt 0 view .LVU37
+ 240 0012 0120     		movs	r0, #1
+ARM GAS  /tmp/ccOzT0EZ.s 			page 7
+
+
+ 241              		@ sp needed
+ 242              	.LVL17:
+ 243              		.loc 1 112 1 view .LVU38
+ 244 0014 10BD     		pop	{r4, pc}
+ 245              		.cfi_endproc
+ 246              	.LFE5:
+ 248              		.section	.text.SCPI_StatusQuestionableEventQ,"ax",%progbits
+ 249              		.align	1
+ 250              		.global	SCPI_StatusQuestionableEventQ
+ 251              		.syntax unified
+ 252              		.code	16
+ 253              		.thumb_func
+ 254              		.fpu softvfp
+ 256              	SCPI_StatusQuestionableEventQ:
+ 257              	.LVL18:
+ 258              	.LFB6:
+ 113:libscpi/src/minimal.c **** 
+ 114:libscpi/src/minimal.c **** /**
+ 115:libscpi/src/minimal.c ****  * STATus:QUEStionable[:EVENt]?
+ 116:libscpi/src/minimal.c ****  * @param context
+ 117:libscpi/src/minimal.c ****  * @return
+ 118:libscpi/src/minimal.c ****  */
+ 119:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusQuestionableEventQ(scpi_t * context) {
+ 259              		.loc 1 119 63 is_stmt 1 view -0
+ 260              		.cfi_startproc
+ 261              		@ args = 0, pretend = 0, frame = 0
+ 262              		@ frame_needed = 0, uses_anonymous_args = 0
+ 263              		.loc 1 119 63 is_stmt 0 view .LVU40
+ 264 0000 10B5     		push	{r4, lr}
+ 265              	.LCFI6:
+ 266              		.cfi_def_cfa_offset 8
+ 267              		.cfi_offset 4, -8
+ 268              		.cfi_offset 14, -4
+ 269 0002 0400     		movs	r4, r0
+ 120:libscpi/src/minimal.c ****     /* return value */
+ 121:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUES));
+ 270              		.loc 1 121 5 is_stmt 1 view .LVU41
+ 271              		.loc 1 121 31 is_stmt 0 view .LVU42
+ 272 0004 0721     		movs	r1, #7
+ 273 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 274              	.LVL19:
+ 275              		.loc 1 121 31 view .LVU43
+ 276 000a 0100     		movs	r1, r0
+ 277              		.loc 1 121 5 view .LVU44
+ 278 000c 2000     		movs	r0, r4
+ 279 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 280              	.LVL20:
+ 122:libscpi/src/minimal.c **** 
+ 123:libscpi/src/minimal.c ****     /* clear register */
+ 124:libscpi/src/minimal.c ****     SCPI_RegSet(context, SCPI_REG_QUES, 0);
+ 281              		.loc 1 124 5 is_stmt 1 view .LVU45
+ 282 0012 0022     		movs	r2, #0
+ 283 0014 0721     		movs	r1, #7
+ 284 0016 2000     		movs	r0, r4
+ 285 0018 FFF7FEFF 		bl	SCPI_RegSet
+ 286              	.LVL21:
+ 125:libscpi/src/minimal.c **** 
+ARM GAS  /tmp/ccOzT0EZ.s 			page 8
+
+
+ 126:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 287              		.loc 1 126 5 view .LVU46
+ 127:libscpi/src/minimal.c **** }
+ 288              		.loc 1 127 1 is_stmt 0 view .LVU47
+ 289 001c 0120     		movs	r0, #1
+ 290              		@ sp needed
+ 291              	.LVL22:
+ 292              		.loc 1 127 1 view .LVU48
+ 293 001e 10BD     		pop	{r4, pc}
+ 294              		.cfi_endproc
+ 295              	.LFE6:
+ 297              		.section	.text.SCPI_StatusQuestionableEnableQ,"ax",%progbits
+ 298              		.align	1
+ 299              		.global	SCPI_StatusQuestionableEnableQ
+ 300              		.syntax unified
+ 301              		.code	16
+ 302              		.thumb_func
+ 303              		.fpu softvfp
+ 305              	SCPI_StatusQuestionableEnableQ:
+ 306              	.LVL23:
+ 307              	.LFB7:
+ 128:libscpi/src/minimal.c **** 
+ 129:libscpi/src/minimal.c **** /**
+ 130:libscpi/src/minimal.c ****  * STATus:QUEStionable:ENABle?
+ 131:libscpi/src/minimal.c ****  * @param context
+ 132:libscpi/src/minimal.c ****  * @return
+ 133:libscpi/src/minimal.c ****  */
+ 134:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusQuestionableEnableQ(scpi_t * context) {
+ 308              		.loc 1 134 64 is_stmt 1 view -0
+ 309              		.cfi_startproc
+ 310              		@ args = 0, pretend = 0, frame = 0
+ 311              		@ frame_needed = 0, uses_anonymous_args = 0
+ 312              		.loc 1 134 64 is_stmt 0 view .LVU50
+ 313 0000 10B5     		push	{r4, lr}
+ 314              	.LCFI7:
+ 315              		.cfi_def_cfa_offset 8
+ 316              		.cfi_offset 4, -8
+ 317              		.cfi_offset 14, -4
+ 318 0002 0400     		movs	r4, r0
+ 135:libscpi/src/minimal.c ****     /* return value */
+ 136:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_QUESE));
+ 319              		.loc 1 136 5 is_stmt 1 view .LVU51
+ 320              		.loc 1 136 31 is_stmt 0 view .LVU52
+ 321 0004 0821     		movs	r1, #8
+ 322 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 323              	.LVL24:
+ 324              		.loc 1 136 31 view .LVU53
+ 325 000a 0100     		movs	r1, r0
+ 326              		.loc 1 136 5 view .LVU54
+ 327 000c 2000     		movs	r0, r4
+ 328 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 329              	.LVL25:
+ 137:libscpi/src/minimal.c **** 
+ 138:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 330              		.loc 1 138 5 is_stmt 1 view .LVU55
+ 139:libscpi/src/minimal.c **** }
+ 331              		.loc 1 139 1 is_stmt 0 view .LVU56
+ARM GAS  /tmp/ccOzT0EZ.s 			page 9
+
+
+ 332 0012 0120     		movs	r0, #1
+ 333              		@ sp needed
+ 334              	.LVL26:
+ 335              		.loc 1 139 1 view .LVU57
+ 336 0014 10BD     		pop	{r4, pc}
+ 337              		.cfi_endproc
+ 338              	.LFE7:
+ 340              		.section	.text.SCPI_StatusQuestionableEnable,"ax",%progbits
+ 341              		.align	1
+ 342              		.global	SCPI_StatusQuestionableEnable
+ 343              		.syntax unified
+ 344              		.code	16
+ 345              		.thumb_func
+ 346              		.fpu softvfp
+ 348              	SCPI_StatusQuestionableEnable:
+ 349              	.LVL27:
+ 350              	.LFB8:
+ 140:libscpi/src/minimal.c **** 
+ 141:libscpi/src/minimal.c **** /**
+ 142:libscpi/src/minimal.c ****  * STATus:QUEStionable:ENABle
+ 143:libscpi/src/minimal.c ****  * @param context
+ 144:libscpi/src/minimal.c ****  * @return
+ 145:libscpi/src/minimal.c ****  */
+ 146:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusQuestionableEnable(scpi_t * context) {
+ 351              		.loc 1 146 63 is_stmt 1 view -0
+ 352              		.cfi_startproc
+ 353              		@ args = 0, pretend = 0, frame = 8
+ 354              		@ frame_needed = 0, uses_anonymous_args = 0
+ 355              		.loc 1 146 63 is_stmt 0 view .LVU59
+ 356 0000 10B5     		push	{r4, lr}
+ 357              	.LCFI8:
+ 358              		.cfi_def_cfa_offset 8
+ 359              		.cfi_offset 4, -8
+ 360              		.cfi_offset 14, -4
+ 361 0002 82B0     		sub	sp, sp, #8
+ 362              	.LCFI9:
+ 363              		.cfi_def_cfa_offset 16
+ 364 0004 0400     		movs	r4, r0
+ 147:libscpi/src/minimal.c ****     int32_t new_QUESE;
+ 365              		.loc 1 147 5 is_stmt 1 view .LVU60
+ 148:libscpi/src/minimal.c ****     if (SCPI_ParamInt32(context, &new_QUESE, TRUE)) {
+ 366              		.loc 1 148 5 view .LVU61
+ 367              		.loc 1 148 9 is_stmt 0 view .LVU62
+ 368 0006 0122     		movs	r2, #1
+ 369 0008 01A9     		add	r1, sp, #4
+ 370 000a FFF7FEFF 		bl	SCPI_ParamInt32
+ 371              	.LVL28:
+ 372              		.loc 1 148 8 view .LVU63
+ 373 000e 0028     		cmp	r0, #0
+ 374 0010 02D1     		bne	.L13
+ 375              	.L12:
+ 149:libscpi/src/minimal.c ****         SCPI_RegSet(context, SCPI_REG_QUESE, (scpi_reg_val_t) new_QUESE);
+ 150:libscpi/src/minimal.c ****     }
+ 151:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 376              		.loc 1 151 5 is_stmt 1 view .LVU64
+ 152:libscpi/src/minimal.c **** }
+ 377              		.loc 1 152 1 is_stmt 0 view .LVU65
+ARM GAS  /tmp/ccOzT0EZ.s 			page 10
+
+
+ 378 0012 0120     		movs	r0, #1
+ 379 0014 02B0     		add	sp, sp, #8
+ 380              		@ sp needed
+ 381              	.LVL29:
+ 382              		.loc 1 152 1 view .LVU66
+ 383 0016 10BD     		pop	{r4, pc}
+ 384              	.LVL30:
+ 385              	.L13:
+ 149:libscpi/src/minimal.c ****         SCPI_RegSet(context, SCPI_REG_QUESE, (scpi_reg_val_t) new_QUESE);
+ 386              		.loc 1 149 9 is_stmt 1 view .LVU67
+ 387 0018 019B     		ldr	r3, [sp, #4]
+ 388 001a 9AB2     		uxth	r2, r3
+ 389 001c 0821     		movs	r1, #8
+ 390 001e 2000     		movs	r0, r4
+ 391 0020 FFF7FEFF 		bl	SCPI_RegSet
+ 392              	.LVL31:
+ 393 0024 F5E7     		b	.L12
+ 394              		.cfi_endproc
+ 395              	.LFE8:
+ 397              		.section	.text.SCPI_StatusOperationConditionQ,"ax",%progbits
+ 398              		.align	1
+ 399              		.global	SCPI_StatusOperationConditionQ
+ 400              		.syntax unified
+ 401              		.code	16
+ 402              		.thumb_func
+ 403              		.fpu softvfp
+ 405              	SCPI_StatusOperationConditionQ:
+ 406              	.LVL32:
+ 407              	.LFB9:
+ 153:libscpi/src/minimal.c **** 
+ 154:libscpi/src/minimal.c **** /**
+ 155:libscpi/src/minimal.c ****  * STATus:OPERation:CONDition?
+ 156:libscpi/src/minimal.c ****  * @param context
+ 157:libscpi/src/minimal.c ****  * @return
+ 158:libscpi/src/minimal.c ****  */
+ 159:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusOperationConditionQ(scpi_t * context) {
+ 408              		.loc 1 159 64 view -0
+ 409              		.cfi_startproc
+ 410              		@ args = 0, pretend = 0, frame = 0
+ 411              		@ frame_needed = 0, uses_anonymous_args = 0
+ 412              		.loc 1 159 64 is_stmt 0 view .LVU69
+ 413 0000 10B5     		push	{r4, lr}
+ 414              	.LCFI10:
+ 415              		.cfi_def_cfa_offset 8
+ 416              		.cfi_offset 4, -8
+ 417              		.cfi_offset 14, -4
+ 418 0002 0400     		movs	r4, r0
+ 160:libscpi/src/minimal.c ****     /* return value */
+ 161:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPERC));
+ 419              		.loc 1 161 5 is_stmt 1 view .LVU70
+ 420              		.loc 1 161 31 is_stmt 0 view .LVU71
+ 421 0004 0621     		movs	r1, #6
+ 422 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 423              	.LVL33:
+ 424              		.loc 1 161 31 view .LVU72
+ 425 000a 0100     		movs	r1, r0
+ 426              		.loc 1 161 5 view .LVU73
+ARM GAS  /tmp/ccOzT0EZ.s 			page 11
+
+
+ 427 000c 2000     		movs	r0, r4
+ 428 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 429              	.LVL34:
+ 162:libscpi/src/minimal.c **** 
+ 163:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 430              		.loc 1 163 5 is_stmt 1 view .LVU74
+ 164:libscpi/src/minimal.c **** }
+ 431              		.loc 1 164 1 is_stmt 0 view .LVU75
+ 432 0012 0120     		movs	r0, #1
+ 433              		@ sp needed
+ 434              	.LVL35:
+ 435              		.loc 1 164 1 view .LVU76
+ 436 0014 10BD     		pop	{r4, pc}
+ 437              		.cfi_endproc
+ 438              	.LFE9:
+ 440              		.section	.text.SCPI_StatusOperationEventQ,"ax",%progbits
+ 441              		.align	1
+ 442              		.global	SCPI_StatusOperationEventQ
+ 443              		.syntax unified
+ 444              		.code	16
+ 445              		.thumb_func
+ 446              		.fpu softvfp
+ 448              	SCPI_StatusOperationEventQ:
+ 449              	.LVL36:
+ 450              	.LFB10:
+ 165:libscpi/src/minimal.c **** 
+ 166:libscpi/src/minimal.c **** /**
+ 167:libscpi/src/minimal.c ****  * STATus:OPERation[:EVENt]?
+ 168:libscpi/src/minimal.c ****  * @param context
+ 169:libscpi/src/minimal.c ****  * @return
+ 170:libscpi/src/minimal.c ****  */
+ 171:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusOperationEventQ(scpi_t * context) {
+ 451              		.loc 1 171 60 is_stmt 1 view -0
+ 452              		.cfi_startproc
+ 453              		@ args = 0, pretend = 0, frame = 0
+ 454              		@ frame_needed = 0, uses_anonymous_args = 0
+ 455              		.loc 1 171 60 is_stmt 0 view .LVU78
+ 456 0000 10B5     		push	{r4, lr}
+ 457              	.LCFI11:
+ 458              		.cfi_def_cfa_offset 8
+ 459              		.cfi_offset 4, -8
+ 460              		.cfi_offset 14, -4
+ 461 0002 0400     		movs	r4, r0
+ 172:libscpi/src/minimal.c ****     /* return value */
+ 173:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPER));
+ 462              		.loc 1 173 5 is_stmt 1 view .LVU79
+ 463              		.loc 1 173 31 is_stmt 0 view .LVU80
+ 464 0004 0421     		movs	r1, #4
+ 465 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 466              	.LVL37:
+ 467              		.loc 1 173 31 view .LVU81
+ 468 000a 0100     		movs	r1, r0
+ 469              		.loc 1 173 5 view .LVU82
+ 470 000c 2000     		movs	r0, r4
+ 471 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 472              	.LVL38:
+ 174:libscpi/src/minimal.c **** 
+ARM GAS  /tmp/ccOzT0EZ.s 			page 12
+
+
+ 175:libscpi/src/minimal.c ****     /* clear register */
+ 176:libscpi/src/minimal.c ****     SCPI_RegSet(context, SCPI_REG_OPER, 0);
+ 473              		.loc 1 176 5 is_stmt 1 view .LVU83
+ 474 0012 0022     		movs	r2, #0
+ 475 0014 0421     		movs	r1, #4
+ 476 0016 2000     		movs	r0, r4
+ 477 0018 FFF7FEFF 		bl	SCPI_RegSet
+ 478              	.LVL39:
+ 177:libscpi/src/minimal.c **** 
+ 178:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 479              		.loc 1 178 5 view .LVU84
+ 179:libscpi/src/minimal.c **** }
+ 480              		.loc 1 179 1 is_stmt 0 view .LVU85
+ 481 001c 0120     		movs	r0, #1
+ 482              		@ sp needed
+ 483              	.LVL40:
+ 484              		.loc 1 179 1 view .LVU86
+ 485 001e 10BD     		pop	{r4, pc}
+ 486              		.cfi_endproc
+ 487              	.LFE10:
+ 489              		.section	.text.SCPI_StatusOperationEnableQ,"ax",%progbits
+ 490              		.align	1
+ 491              		.global	SCPI_StatusOperationEnableQ
+ 492              		.syntax unified
+ 493              		.code	16
+ 494              		.thumb_func
+ 495              		.fpu softvfp
+ 497              	SCPI_StatusOperationEnableQ:
+ 498              	.LVL41:
+ 499              	.LFB11:
+ 180:libscpi/src/minimal.c **** 
+ 181:libscpi/src/minimal.c **** /**
+ 182:libscpi/src/minimal.c ****  * STATus:OPERation:ENABle?
+ 183:libscpi/src/minimal.c ****  * @param context
+ 184:libscpi/src/minimal.c ****  * @return
+ 185:libscpi/src/minimal.c ****  */
+ 186:libscpi/src/minimal.c ****  scpi_result_t SCPI_StatusOperationEnableQ(scpi_t * context) {
+ 500              		.loc 1 186 62 is_stmt 1 view -0
+ 501              		.cfi_startproc
+ 502              		@ args = 0, pretend = 0, frame = 0
+ 503              		@ frame_needed = 0, uses_anonymous_args = 0
+ 504              		.loc 1 186 62 is_stmt 0 view .LVU88
+ 505 0000 10B5     		push	{r4, lr}
+ 506              	.LCFI12:
+ 507              		.cfi_def_cfa_offset 8
+ 508              		.cfi_offset 4, -8
+ 509              		.cfi_offset 14, -4
+ 510 0002 0400     		movs	r4, r0
+ 187:libscpi/src/minimal.c ****     /* return value */
+ 188:libscpi/src/minimal.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_OPERE));
+ 511              		.loc 1 188 5 is_stmt 1 view .LVU89
+ 512              		.loc 1 188 31 is_stmt 0 view .LVU90
+ 513 0004 0521     		movs	r1, #5
+ 514 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 515              	.LVL42:
+ 516              		.loc 1 188 31 view .LVU91
+ 517 000a 0100     		movs	r1, r0
+ARM GAS  /tmp/ccOzT0EZ.s 			page 13
+
+
+ 518              		.loc 1 188 5 view .LVU92
+ 519 000c 2000     		movs	r0, r4
+ 520 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 521              	.LVL43:
+ 189:libscpi/src/minimal.c **** 
+ 190:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 522              		.loc 1 190 5 is_stmt 1 view .LVU93
+ 191:libscpi/src/minimal.c **** }
+ 523              		.loc 1 191 1 is_stmt 0 view .LVU94
+ 524 0012 0120     		movs	r0, #1
+ 525              		@ sp needed
+ 526              	.LVL44:
+ 527              		.loc 1 191 1 view .LVU95
+ 528 0014 10BD     		pop	{r4, pc}
+ 529              		.cfi_endproc
+ 530              	.LFE11:
+ 532              		.section	.text.SCPI_StatusOperationEnable,"ax",%progbits
+ 533              		.align	1
+ 534              		.global	SCPI_StatusOperationEnable
+ 535              		.syntax unified
+ 536              		.code	16
+ 537              		.thumb_func
+ 538              		.fpu softvfp
+ 540              	SCPI_StatusOperationEnable:
+ 541              	.LVL45:
+ 542              	.LFB12:
+ 192:libscpi/src/minimal.c **** 
+ 193:libscpi/src/minimal.c **** /**
+ 194:libscpi/src/minimal.c ****  * STATus:OPERation:ENABle
+ 195:libscpi/src/minimal.c ****  * @param context
+ 196:libscpi/src/minimal.c ****  * @return
+ 197:libscpi/src/minimal.c ****  */
+ 198:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusOperationEnable(scpi_t * context) {
+ 543              		.loc 1 198 60 is_stmt 1 view -0
+ 544              		.cfi_startproc
+ 545              		@ args = 0, pretend = 0, frame = 8
+ 546              		@ frame_needed = 0, uses_anonymous_args = 0
+ 547              		.loc 1 198 60 is_stmt 0 view .LVU97
+ 548 0000 10B5     		push	{r4, lr}
+ 549              	.LCFI13:
+ 550              		.cfi_def_cfa_offset 8
+ 551              		.cfi_offset 4, -8
+ 552              		.cfi_offset 14, -4
+ 553 0002 82B0     		sub	sp, sp, #8
+ 554              	.LCFI14:
+ 555              		.cfi_def_cfa_offset 16
+ 556 0004 0400     		movs	r4, r0
+ 199:libscpi/src/minimal.c ****     int32_t new_OPERE;
+ 557              		.loc 1 199 5 is_stmt 1 view .LVU98
+ 200:libscpi/src/minimal.c ****     if (SCPI_ParamInt32(context, &new_OPERE, TRUE)) {
+ 558              		.loc 1 200 5 view .LVU99
+ 559              		.loc 1 200 9 is_stmt 0 view .LVU100
+ 560 0006 0122     		movs	r2, #1
+ 561 0008 01A9     		add	r1, sp, #4
+ 562 000a FFF7FEFF 		bl	SCPI_ParamInt32
+ 563              	.LVL46:
+ 564              		.loc 1 200 8 view .LVU101
+ARM GAS  /tmp/ccOzT0EZ.s 			page 14
+
+
+ 565 000e 0028     		cmp	r0, #0
+ 566 0010 02D1     		bne	.L19
+ 567              	.L18:
+ 201:libscpi/src/minimal.c ****         SCPI_RegSet(context, SCPI_REG_OPERE, (scpi_reg_val_t) new_OPERE);
+ 202:libscpi/src/minimal.c ****     }
+ 203:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 568              		.loc 1 203 5 is_stmt 1 view .LVU102
+ 204:libscpi/src/minimal.c **** }
+ 569              		.loc 1 204 1 is_stmt 0 view .LVU103
+ 570 0012 0120     		movs	r0, #1
+ 571 0014 02B0     		add	sp, sp, #8
+ 572              		@ sp needed
+ 573              	.LVL47:
+ 574              		.loc 1 204 1 view .LVU104
+ 575 0016 10BD     		pop	{r4, pc}
+ 576              	.LVL48:
+ 577              	.L19:
+ 201:libscpi/src/minimal.c ****         SCPI_RegSet(context, SCPI_REG_OPERE, (scpi_reg_val_t) new_OPERE);
+ 578              		.loc 1 201 9 is_stmt 1 view .LVU105
+ 579 0018 019B     		ldr	r3, [sp, #4]
+ 580 001a 9AB2     		uxth	r2, r3
+ 581 001c 0521     		movs	r1, #5
+ 582 001e 2000     		movs	r0, r4
+ 583 0020 FFF7FEFF 		bl	SCPI_RegSet
+ 584              	.LVL49:
+ 585 0024 F5E7     		b	.L18
+ 586              		.cfi_endproc
+ 587              	.LFE12:
+ 589              		.section	.text.SCPI_StatusPreset,"ax",%progbits
+ 590              		.align	1
+ 591              		.global	SCPI_StatusPreset
+ 592              		.syntax unified
+ 593              		.code	16
+ 594              		.thumb_func
+ 595              		.fpu softvfp
+ 597              	SCPI_StatusPreset:
+ 598              	.LVL50:
+ 599              	.LFB13:
+ 205:libscpi/src/minimal.c **** 
+ 206:libscpi/src/minimal.c **** /**
+ 207:libscpi/src/minimal.c ****  * STATus:PRESet
+ 208:libscpi/src/minimal.c ****  * @param context
+ 209:libscpi/src/minimal.c ****  * @return
+ 210:libscpi/src/minimal.c ****  */
+ 211:libscpi/src/minimal.c **** scpi_result_t SCPI_StatusPreset(scpi_t * context) {
+ 600              		.loc 1 211 51 view -0
+ 601              		.cfi_startproc
+ 602              		@ args = 0, pretend = 0, frame = 0
+ 603              		@ frame_needed = 0, uses_anonymous_args = 0
+ 604              		.loc 1 211 51 is_stmt 0 view .LVU107
+ 605 0000 10B5     		push	{r4, lr}
+ 606              	.LCFI15:
+ 607              		.cfi_def_cfa_offset 8
+ 608              		.cfi_offset 4, -8
+ 609              		.cfi_offset 14, -4
+ 212:libscpi/src/minimal.c ****     /* clear STATUS:... */
+ 213:libscpi/src/minimal.c ****     SCPI_RegSet(context, SCPI_REG_QUES, 0);
+ARM GAS  /tmp/ccOzT0EZ.s 			page 15
+
+
+ 610              		.loc 1 213 5 is_stmt 1 view .LVU108
+ 611 0002 0022     		movs	r2, #0
+ 612 0004 0721     		movs	r1, #7
+ 613 0006 FFF7FEFF 		bl	SCPI_RegSet
+ 614              	.LVL51:
+ 214:libscpi/src/minimal.c ****     return SCPI_RES_OK;
+ 615              		.loc 1 214 5 view .LVU109
+ 215:libscpi/src/minimal.c **** }
+ 616              		.loc 1 215 1 is_stmt 0 view .LVU110
+ 617 000a 0120     		movs	r0, #1
+ 618              		@ sp needed
+ 619 000c 10BD     		pop	{r4, pc}
+ 620              		.cfi_endproc
+ 621              	.LFE13:
+ 623              		.text
+ 624              	.Letext0:
+ 625              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 626              		.file 3 "/usr/include/newlib/sys/_types.h"
+ 627              		.file 4 "/usr/include/newlib/sys/reent.h"
+ 628              		.file 5 "/usr/include/newlib/sys/lock.h"
+ 629              		.file 6 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 630              		.file 7 "libscpi/inc/scpi/types.h"
+ 631              		.file 8 "libscpi/inc/scpi/parser.h"
+ 632              		.file 9 "libscpi/inc/scpi/ieee488.h"
+ 633              		.file 10 "libscpi/inc/scpi/error.h"
+ARM GAS  /tmp/ccOzT0EZ.s 			page 16
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 minimal.c
+     /tmp/ccOzT0EZ.s:16     .text.SCPI_Stub:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:24     .text.SCPI_Stub:0000000000000000 SCPI_Stub
+     /tmp/ccOzT0EZ.s:45     .text.SCPI_StubQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:52     .text.SCPI_StubQ:0000000000000000 SCPI_StubQ
+     /tmp/ccOzT0EZ.s:78     .rodata.SCPI_SystemVersionQ.str1.4:0000000000000000 $d
+     /tmp/ccOzT0EZ.s:82     .text.SCPI_SystemVersionQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:89     .text.SCPI_SystemVersionQ:0000000000000000 SCPI_SystemVersionQ
+     /tmp/ccOzT0EZ.s:115    .text.SCPI_SystemVersionQ:0000000000000010 $d
+     /tmp/ccOzT0EZ.s:120    .text.SCPI_SystemErrorNextQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:127    .text.SCPI_SystemErrorNextQ:0000000000000000 SCPI_SystemErrorNextQ
+     /tmp/ccOzT0EZ.s:166    .text.SCPI_SystemErrorCountQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:173    .text.SCPI_SystemErrorCountQ:0000000000000000 SCPI_SystemErrorCountQ
+     /tmp/ccOzT0EZ.s:206    .text.SCPI_StatusQuestionableConditionQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:213    .text.SCPI_StatusQuestionableConditionQ:0000000000000000 SCPI_StatusQuestionableConditionQ
+     /tmp/ccOzT0EZ.s:249    .text.SCPI_StatusQuestionableEventQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:256    .text.SCPI_StatusQuestionableEventQ:0000000000000000 SCPI_StatusQuestionableEventQ
+     /tmp/ccOzT0EZ.s:298    .text.SCPI_StatusQuestionableEnableQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:305    .text.SCPI_StatusQuestionableEnableQ:0000000000000000 SCPI_StatusQuestionableEnableQ
+     /tmp/ccOzT0EZ.s:341    .text.SCPI_StatusQuestionableEnable:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:348    .text.SCPI_StatusQuestionableEnable:0000000000000000 SCPI_StatusQuestionableEnable
+     /tmp/ccOzT0EZ.s:398    .text.SCPI_StatusOperationConditionQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:405    .text.SCPI_StatusOperationConditionQ:0000000000000000 SCPI_StatusOperationConditionQ
+     /tmp/ccOzT0EZ.s:441    .text.SCPI_StatusOperationEventQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:448    .text.SCPI_StatusOperationEventQ:0000000000000000 SCPI_StatusOperationEventQ
+     /tmp/ccOzT0EZ.s:490    .text.SCPI_StatusOperationEnableQ:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:497    .text.SCPI_StatusOperationEnableQ:0000000000000000 SCPI_StatusOperationEnableQ
+     /tmp/ccOzT0EZ.s:533    .text.SCPI_StatusOperationEnable:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:540    .text.SCPI_StatusOperationEnable:0000000000000000 SCPI_StatusOperationEnable
+     /tmp/ccOzT0EZ.s:590    .text.SCPI_StatusPreset:0000000000000000 $t
+     /tmp/ccOzT0EZ.s:597    .text.SCPI_StatusPreset:0000000000000000 SCPI_StatusPreset
+
+UNDEFINED SYMBOLS
+SCPI_ResultInt32
+SCPI_ResultCharacters
+SCPI_ErrorPop
+SCPI_ResultError
+SCPI_ErrorCount
+SCPI_RegGet
+SCPI_RegSet
+SCPI_ParamInt32

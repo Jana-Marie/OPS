@@ -1,5 +1,4 @@
 #include "main.h"
-#include "usb_device.h"
 #include "MP8862.h"
 #include "usbd_cdc_if.h"
 #include "usb_device.h"
@@ -35,6 +34,8 @@ extern uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
 uint8_t is_new_data_ready;
 uint16_t new_data_length;
 
+uint16_t sine[60] = {0x251c,0x28fd,0x2cd3,0x3094,0x3434,0x37aa,0x3aec,0x3df1,0x40b0,0x4322,0x453f,0x4703,0x4867,0x4968,0x4a04,0x4a38,0x4a04,0x4968,0x4867,0x4703,0x453f,0x4322,0x40b0,0x3df1,0x3aec,0x37aa,0x3434,0x3094,0x2cd3,0x28fd,0x251c,0x213b,0x1d65,0x19a4,0x1604,0x128e,0xf4c,0xc47,0x988,0x716,0x4f9,0x335,0x1d1,0xd0,0x34,0x0,0x34,0xd0,0x1d1,0x335,0x4f9,0x716,0x988,0xc47,0xf4c,0x128e,0x1604,0x19a4,0x1d65,0x213b};
+
 int main(void)
 {
   HAL_Init();
@@ -55,13 +56,14 @@ int main(void)
 
   MP8862_init(&MP8862, &hi2c2, MP8862_ADDR_0x69);
   MP8862_setVoltageSetpoint_mV(&MP8862, 0);
-  MP8862_setCurrentLimit_mA(&MP8862, 400);
+  MP8862_setCurrentLimit_mA(&MP8862, 2000);
   uint8_t isReady = MP8862_setEnable(&MP8862, 1);
 
   if(isReady){
     HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin, 0);
   } else {
     HAL_GPIO_WritePin(GPIOB, LED_RED_Pin, 0);
+    HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin, 0);
   }
 
   HAL_ADC_Start_DMA(&hadc, adc, 8);
@@ -78,11 +80,24 @@ int main(void)
   while (1)
   {
     // Sine-Ramp for testing
-    //for(uint8_t i = 0; i < 60; i++){
-    //  MP8862_setVoltageSetpoint_mV(&MP8862, sine[i]);
-    //  HAL_GPIO_TogglePin(GPIOB, LED_ACT_Pin);
-    //  HAL_Delay(25);
-    //}
+    for(uint8_t i = 0; i < 60; i++){
+      MP8862_setVoltageSetpoint_mV(&MP8862, sine[i]);
+      HAL_GPIO_TogglePin(GPIOB, LED_ACT_Pin);
+      HAL_Delay(25);
+      //uint8_t reg1,reg2,go,stat,vlo,vhi,ir;
+      //MP8862_read(&MP8862, MP8862_REG_CTL1 , &reg1, 1 );
+      //MP8862_read(&MP8862, MP8862_REG_CTL2 , &reg2, 1 );
+      //MP8862_read(&MP8862, MP8862_REG_VOUT_GO , &go, 1 );
+      //MP8862_read(&MP8862, MP8862_REG_STATUS , &stat, 1 );
+      //MP8862_read(&MP8862, MP8862_REG_VOUT_L , &vlo, 1 );
+      //MP8862_read(&MP8862, MP8862_REG_VOUT_H , &vhi, 1 );
+      //MP8862_readCurrentLimit_mA(&MP8862, &ir);
+      //MP8862_read(&MP8862, MP8862_REG_INTERRUPT , &ir, 1 );
+      //MP8862_write(&MP8862, MP8862_REG_INTERRUPT , 0xff, 1 );
+      //char _err[150] = {0};
+      //sprintf(_err, "DBG\tR1=%d\tR2=%d\tgo=%d\tstat=%d\tlo=%d\thi=%d\tir=%d\n\r", reg1,reg2,go,stat,vlo,vhi,ir);
+      //CDC_Transmit_FS(_err, 150);
+    }
     HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 0);
 
     if (adc_ready_flag) {

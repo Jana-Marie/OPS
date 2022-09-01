@@ -12,7 +12,7 @@ uint8_t MP8862_init(struct MP8862_t *_MP8862, I2C_HandleTypeDef *_hI2C, uint8_t 
     _MP8862->hI2C = _hI2C;
     _MP8862->deviceAddress = addr;
     uint8_t initialized   = MP8862_isReady(_MP8862);
-    _MP8862->VOUT_soft_limit_mV = 9000;
+    _MP8862->VOUT_soft_limit_mV = 22000;
     _MP8862->IOUT_soft_limit_mA = 3000;
     return initialized;
 }
@@ -27,7 +27,7 @@ uint8_t MP8862_write(struct MP8862_t *_MP8862, enum MP8862_register reg, uint8_t
     // DATA0 : ACK [ : DATA1* : ACK [ : ... ]]
     // P
     // *: Register addresses are post-incremented, and *** read-only registers will be skipped ***.
-    return HAL_OK == HAL_I2C_Mem_Write(_MP8862->hI2C, _MP8862->deviceAddress << 1, reg, 1, data, len, 5 );
+    return HAL_OK == HAL_I2C_Mem_Write(_MP8862->hI2C, _MP8862->deviceAddress << 1, reg, 1, data, len, 5);
 }
 
 uint8_t MP8862_read(struct MP8862_t *_MP8862, enum MP8862_register reg, uint8_t *data, uint8_t len ) {
@@ -40,7 +40,7 @@ uint8_t MP8862_read(struct MP8862_t *_MP8862, enum MP8862_register reg, uint8_t 
     //    - when master ACK is sent instead of NACK, multiple bytes can be read from auto-incrementing reg addresses
     //    - unmapped register addresses 0x0D ... 0x26 and 0x2A .. 0xFF read as 0x00
     //    -
-    return HAL_OK == HAL_I2C_Mem_Read( _MP8862->hI2C, _MP8862->deviceAddress << 1, reg, 1, data, len, 5 );
+    return HAL_OK == HAL_I2C_Mem_Read( _MP8862->hI2C, _MP8862->deviceAddress << 1, reg, 1, data, len, 5);
 }
 
 uint8_t MP8862_setEnable(struct MP8862_t *_MP8862, uint8_t soft_EN) {
@@ -81,7 +81,7 @@ uint8_t MP8862_setVoltageSetpoint_mV(struct MP8862_t *_MP8862, uint16_t voltage_
     uint32_t voltage_raw = (voltage_mV * 819 + (5 * 819)) >> 13; // * 0.1 (~ 819/8192)
     tmp[0] = voltage_raw & 0x07;                 // VOUT_L value = voltage_raw[ 2:0]
     tmp[1] = (voltage_raw >> 3) & 0xFF;          // VOUT_H value = voltage_raw[10:3]
-    tmp[2] = MP8862_GO_BIT | MP8862_PG_DELAY_EN; // Apply VOUT changes by setting the GO bit right after updating VOUT.
+    tmp[2] = MP8862_GO_BIT; // Apply VOUT changes by setting the GO bit right after updating VOUT.
     return MP8862_write(_MP8862, MP8862_REG_VOUT_L , tmp, 3 );
 }
 

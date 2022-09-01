@@ -148,11 +148,7 @@ C_INCLUDES =  \
 -IDrivers/CMSIS/Include
 
 C_INCLUDES +=  \
--Iusb_cdc_g4/STM32_USB_Device_Library/Class/CDC/Inc \
--Iusb_cdc_g4/STM32_USB_Device_Library/Core/Inc \
 -Ilibscpi/inc \
--Iusb_cdc_g4/Inc
-
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

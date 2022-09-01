@@ -63,10 +63,10 @@
   * @{
   */
 
-#define USBD_VID     1155
+#define USBD_VID     0x33ff
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "Otter Scientific"
-#define USBD_PID_FS     4026
+#define USBD_PID_FS     0x4026
 #define USBD_PRODUCT_STRING_FS     "OPS - An Otter Power Supply"
 #define USBD_CONFIGURATION_STRING_FS     "CDC Config"
 #define USBD_INTERFACE_STRING_FS     "CDC Interface"

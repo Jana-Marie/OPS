@@ -1,0 +1,1979 @@
+ARM GAS  /tmp/ccarfPVd.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"ieee488.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.writeControl,"ax",%progbits
+  16              		.align	1
+  17              		.arch armv6s-m
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	writeControl:
+  24              	.LVL0:
+  25              	.LFB7:
+  26              		.file 1 "libscpi/src/ieee488.c"
+   1:libscpi/src/ieee488.c **** /*-
+   2:libscpi/src/ieee488.c ****  * BSD 2-Clause License
+   3:libscpi/src/ieee488.c ****  *
+   4:libscpi/src/ieee488.c ****  * Copyright (c) 2012-2018, Jan Breuer
+   5:libscpi/src/ieee488.c ****  * All rights reserved.
+   6:libscpi/src/ieee488.c ****  *
+   7:libscpi/src/ieee488.c ****  * Redistribution and use in source and binary forms, with or without
+   8:libscpi/src/ieee488.c ****  * modification, are permitted provided that the following conditions are met:
+   9:libscpi/src/ieee488.c ****  *
+  10:libscpi/src/ieee488.c ****  * * Redistributions of source code must retain the above copyright notice, this
+  11:libscpi/src/ieee488.c ****  *   list of conditions and the following disclaimer.
+  12:libscpi/src/ieee488.c ****  *
+  13:libscpi/src/ieee488.c ****  * * Redistributions in binary form must reproduce the above copyright notice,
+  14:libscpi/src/ieee488.c ****  *   this list of conditions and the following disclaimer in the documentation
+  15:libscpi/src/ieee488.c ****  *   and/or other materials provided with the distribution.
+  16:libscpi/src/ieee488.c ****  *
+  17:libscpi/src/ieee488.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  18:libscpi/src/ieee488.c ****  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  19:libscpi/src/ieee488.c ****  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  20:libscpi/src/ieee488.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  21:libscpi/src/ieee488.c ****  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  22:libscpi/src/ieee488.c ****  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  23:libscpi/src/ieee488.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  24:libscpi/src/ieee488.c ****  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  25:libscpi/src/ieee488.c ****  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  26:libscpi/src/ieee488.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  27:libscpi/src/ieee488.c ****  */
+  28:libscpi/src/ieee488.c **** 
+  29:libscpi/src/ieee488.c **** /**
+  30:libscpi/src/ieee488.c ****  * @file   scpi_ieee488.c
+  31:libscpi/src/ieee488.c ****  * @date   Thu Nov 15 10:58:45 UTC 2012
+  32:libscpi/src/ieee488.c ****  * 
+ARM GAS  /tmp/ccarfPVd.s 			page 2
+
+
+  33:libscpi/src/ieee488.c ****  * @brief  Implementation of IEEE488.2 commands and state model
+  34:libscpi/src/ieee488.c ****  * 
+  35:libscpi/src/ieee488.c ****  * 
+  36:libscpi/src/ieee488.c ****  */
+  37:libscpi/src/ieee488.c **** 
+  38:libscpi/src/ieee488.c **** #include "scpi/parser.h"
+  39:libscpi/src/ieee488.c **** #include "scpi/ieee488.h"
+  40:libscpi/src/ieee488.c **** #include "scpi/error.h"
+  41:libscpi/src/ieee488.c **** #include "scpi/constants.h"
+  42:libscpi/src/ieee488.c **** 
+  43:libscpi/src/ieee488.c **** #include <stdio.h>
+  44:libscpi/src/ieee488.c **** 
+  45:libscpi/src/ieee488.c **** /**
+  46:libscpi/src/ieee488.c ****  * Update register value
+  47:libscpi/src/ieee488.c ****  * @param context
+  48:libscpi/src/ieee488.c ****  * @param name - register name
+  49:libscpi/src/ieee488.c ****  */
+  50:libscpi/src/ieee488.c **** static void regUpdate(scpi_t * context, scpi_reg_name_t name) {
+  51:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name));
+  52:libscpi/src/ieee488.c **** }
+  53:libscpi/src/ieee488.c **** 
+  54:libscpi/src/ieee488.c **** /**
+  55:libscpi/src/ieee488.c ****  * Update latching event register value based on bit transitions from 0 -> 1
+  56:libscpi/src/ieee488.c ****  * in the condition register
+  57:libscpi/src/ieee488.c ****  * @param context
+  58:libscpi/src/ieee488.c ****  * @param condReg - condition register name
+  59:libscpi/src/ieee488.c ****  * @param eventReg - event register name
+  60:libscpi/src/ieee488.c ****  */
+  61:libscpi/src/ieee488.c **** static void regUpdateEvent(scpi_t * context, scpi_reg_val_t oldCondVal, scpi_reg_val_t newCondVal, 
+  62:libscpi/src/ieee488.c ****     SCPI_RegSet(context, eventReg, ((oldCondVal ^ newCondVal) & newCondVal) | SCPI_RegGet(context, 
+  63:libscpi/src/ieee488.c **** }
+  64:libscpi/src/ieee488.c **** 
+  65:libscpi/src/ieee488.c **** /**
+  66:libscpi/src/ieee488.c ****  * Update STB register according to value and its mask register
+  67:libscpi/src/ieee488.c ****  * @param context
+  68:libscpi/src/ieee488.c ****  * @param val value of register
+  69:libscpi/src/ieee488.c ****  * @param mask name of mask register (enable register)
+  70:libscpi/src/ieee488.c ****  * @param stbBits bits to clear or set in STB
+  71:libscpi/src/ieee488.c ****  */
+  72:libscpi/src/ieee488.c **** static void regUpdateSTB(scpi_t * context, scpi_reg_val_t val, scpi_reg_name_t mask, scpi_reg_val_t
+  73:libscpi/src/ieee488.c ****     if (val & SCPI_RegGet(context, mask)) {
+  74:libscpi/src/ieee488.c ****         SCPI_RegSetBits(context, SCPI_REG_STB, stbBits);
+  75:libscpi/src/ieee488.c ****     } else {
+  76:libscpi/src/ieee488.c ****         SCPI_RegClearBits(context, SCPI_REG_STB, stbBits);
+  77:libscpi/src/ieee488.c ****     }
+  78:libscpi/src/ieee488.c **** }
+  79:libscpi/src/ieee488.c **** 
+  80:libscpi/src/ieee488.c **** /**
+  81:libscpi/src/ieee488.c ****  * Get register value
+  82:libscpi/src/ieee488.c ****  * @param name - register name
+  83:libscpi/src/ieee488.c ****  * @return register value
+  84:libscpi/src/ieee488.c ****  */
+  85:libscpi/src/ieee488.c **** scpi_reg_val_t SCPI_RegGet(scpi_t * context, scpi_reg_name_t name) {
+  86:libscpi/src/ieee488.c ****     if ((name < SCPI_REG_COUNT) && context) {
+  87:libscpi/src/ieee488.c ****         return context->registers[name];
+  88:libscpi/src/ieee488.c ****     } else {
+  89:libscpi/src/ieee488.c ****         return 0;
+ARM GAS  /tmp/ccarfPVd.s 			page 3
+
+
+  90:libscpi/src/ieee488.c ****     }
+  91:libscpi/src/ieee488.c **** }
+  92:libscpi/src/ieee488.c **** 
+  93:libscpi/src/ieee488.c **** /**
+  94:libscpi/src/ieee488.c ****  * Wrapper function to control interface from context
+  95:libscpi/src/ieee488.c ****  * @param context
+  96:libscpi/src/ieee488.c ****  * @param ctrl number of controll message
+  97:libscpi/src/ieee488.c ****  * @param value value of related register
+  98:libscpi/src/ieee488.c ****  */
+  99:libscpi/src/ieee488.c **** static size_t writeControl(scpi_t * context, scpi_ctrl_name_t ctrl, scpi_reg_val_t val) {
+  27              		.loc 1 99 89 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		.loc 1 99 89 is_stmt 0 view .LVU1
+  32 0000 10B5     		push	{r4, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 8
+  35              		.cfi_offset 4, -8
+  36              		.cfi_offset 14, -4
+ 100:libscpi/src/ieee488.c ****     if (context && context->interface && context->interface->control) {
+  37              		.loc 1 100 5 is_stmt 1 view .LVU2
+  38              		.loc 1 100 8 is_stmt 0 view .LVU3
+  39 0002 0028     		cmp	r0, #0
+  40 0004 07D0     		beq	.L3
+  41              		.loc 1 100 27 discriminator 1 view .LVU4
+  42 0006 C36A     		ldr	r3, [r0, #44]
+  43              		.loc 1 100 17 discriminator 1 view .LVU5
+  44 0008 002B     		cmp	r3, #0
+  45 000a 06D0     		beq	.L4
+  46              		.loc 1 100 60 discriminator 2 view .LVU6
+  47 000c 9B68     		ldr	r3, [r3, #8]
+  48              		.loc 1 100 39 discriminator 2 view .LVU7
+  49 000e 002B     		cmp	r3, #0
+  50 0010 05D0     		beq	.L5
+ 101:libscpi/src/ieee488.c ****         return context->interface->control(context, ctrl, val);
+  51              		.loc 1 101 9 is_stmt 1 view .LVU8
+  52              		.loc 1 101 16 is_stmt 0 view .LVU9
+  53 0012 9847     		blx	r3
+  54              	.LVL1:
+  55              	.L1:
+ 102:libscpi/src/ieee488.c ****     } else {
+ 103:libscpi/src/ieee488.c ****         return 0;
+ 104:libscpi/src/ieee488.c ****     }
+ 105:libscpi/src/ieee488.c **** }
+  56              		.loc 1 105 1 view .LVU10
+  57              		@ sp needed
+  58 0014 10BD     		pop	{r4, pc}
+  59              	.LVL2:
+  60              	.L3:
+ 103:libscpi/src/ieee488.c ****     }
+  61              		.loc 1 103 16 view .LVU11
+  62 0016 0020     		movs	r0, #0
+  63              	.LVL3:
+ 103:libscpi/src/ieee488.c ****     }
+  64              		.loc 1 103 16 view .LVU12
+  65 0018 FCE7     		b	.L1
+ARM GAS  /tmp/ccarfPVd.s 			page 4
+
+
+  66              	.LVL4:
+  67              	.L4:
+ 103:libscpi/src/ieee488.c ****     }
+  68              		.loc 1 103 16 view .LVU13
+  69 001a 0020     		movs	r0, #0
+  70              	.LVL5:
+ 103:libscpi/src/ieee488.c ****     }
+  71              		.loc 1 103 16 view .LVU14
+  72 001c FAE7     		b	.L1
+  73              	.LVL6:
+  74              	.L5:
+ 103:libscpi/src/ieee488.c ****     }
+  75              		.loc 1 103 16 view .LVU15
+  76 001e 0020     		movs	r0, #0
+  77              	.LVL7:
+ 103:libscpi/src/ieee488.c ****     }
+  78              		.loc 1 103 16 view .LVU16
+  79 0020 F8E7     		b	.L1
+  80              		.cfi_endproc
+  81              	.LFE7:
+  83              		.section	.text.SCPI_RegGet,"ax",%progbits
+  84              		.align	1
+  85              		.global	SCPI_RegGet
+  86              		.syntax unified
+  87              		.code	16
+  88              		.thumb_func
+  89              		.fpu softvfp
+  91              	SCPI_RegGet:
+  92              	.LVL8:
+  93              	.LFB6:
+  85:libscpi/src/ieee488.c ****     if ((name < SCPI_REG_COUNT) && context) {
+  94              		.loc 1 85 68 is_stmt 1 view -0
+  95              		.cfi_startproc
+  96              		@ args = 0, pretend = 0, frame = 0
+  97              		@ frame_needed = 0, uses_anonymous_args = 0
+  98              		@ link register save eliminated.
+  86:libscpi/src/ieee488.c ****         return context->registers[name];
+  99              		.loc 1 86 5 view .LVU18
+  86:libscpi/src/ieee488.c ****         return context->registers[name];
+ 100              		.loc 1 86 8 is_stmt 0 view .LVU19
+ 101 0000 0929     		cmp	r1, #9
+ 102 0002 05D8     		bhi	.L8
+  86:libscpi/src/ieee488.c ****         return context->registers[name];
+ 103              		.loc 1 86 33 discriminator 1 view .LVU20
+ 104 0004 0028     		cmp	r0, #0
+ 105 0006 05D0     		beq	.L9
+  87:libscpi/src/ieee488.c ****     } else {
+ 106              		.loc 1 87 9 is_stmt 1 view .LVU21
+  87:libscpi/src/ieee488.c ****     } else {
+ 107              		.loc 1 87 34 is_stmt 0 view .LVU22
+ 108 0008 2431     		adds	r1, r1, #36
+ 109              	.LVL9:
+  87:libscpi/src/ieee488.c ****     } else {
+ 110              		.loc 1 87 34 view .LVU23
+ 111 000a 4900     		lsls	r1, r1, #1
+ 112 000c 085A     		ldrh	r0, [r1, r0]
+ 113              	.LVL10:
+ARM GAS  /tmp/ccarfPVd.s 			page 5
+
+
+ 114              	.L7:
+  91:libscpi/src/ieee488.c **** 
+ 115              		.loc 1 91 1 view .LVU24
+ 116              		@ sp needed
+ 117 000e 7047     		bx	lr
+ 118              	.LVL11:
+ 119              	.L8:
+  89:libscpi/src/ieee488.c ****     }
+ 120              		.loc 1 89 16 view .LVU25
+ 121 0010 0020     		movs	r0, #0
+ 122              	.LVL12:
+  89:libscpi/src/ieee488.c ****     }
+ 123              		.loc 1 89 16 view .LVU26
+ 124 0012 FCE7     		b	.L7
+ 125              	.LVL13:
+ 126              	.L9:
+  89:libscpi/src/ieee488.c ****     }
+ 127              		.loc 1 89 16 view .LVU27
+ 128 0014 0020     		movs	r0, #0
+ 129              	.LVL14:
+  89:libscpi/src/ieee488.c ****     }
+ 130              		.loc 1 89 16 view .LVU28
+ 131 0016 FAE7     		b	.L7
+ 132              		.cfi_endproc
+ 133              	.LFE6:
+ 135              		.section	.text.SCPI_RegClearBits,"ax",%progbits
+ 136              		.align	1
+ 137              		.global	SCPI_RegClearBits
+ 138              		.syntax unified
+ 139              		.code	16
+ 140              		.thumb_func
+ 141              		.fpu softvfp
+ 143              	SCPI_RegClearBits:
+ 144              	.LVL15:
+ 145              	.LFB10:
+ 106:libscpi/src/ieee488.c **** 
+ 107:libscpi/src/ieee488.c **** /**
+ 108:libscpi/src/ieee488.c ****  * Set register value
+ 109:libscpi/src/ieee488.c ****  * @param name - register name
+ 110:libscpi/src/ieee488.c ****  * @param val - new value
+ 111:libscpi/src/ieee488.c ****  */
+ 112:libscpi/src/ieee488.c **** void SCPI_RegSet(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t val) {
+ 113:libscpi/src/ieee488.c ****     scpi_bool_t srq = FALSE;
+ 114:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 115:libscpi/src/ieee488.c ****     scpi_reg_val_t old_val;
+ 116:libscpi/src/ieee488.c **** 
+ 117:libscpi/src/ieee488.c ****     if ((name >= SCPI_REG_COUNT) || (context == NULL)) {
+ 118:libscpi/src/ieee488.c ****         return;
+ 119:libscpi/src/ieee488.c ****     }
+ 120:libscpi/src/ieee488.c **** 
+ 121:libscpi/src/ieee488.c ****     /* store old register value */
+ 122:libscpi/src/ieee488.c ****     old_val = context->registers[name];
+ 123:libscpi/src/ieee488.c **** 
+ 124:libscpi/src/ieee488.c ****     /* set register value */
+ 125:libscpi/src/ieee488.c ****     context->registers[name] = val;
+ 126:libscpi/src/ieee488.c **** 
+ 127:libscpi/src/ieee488.c ****     /** @TODO: remove recutsion */
+ARM GAS  /tmp/ccarfPVd.s 			page 6
+
+
+ 128:libscpi/src/ieee488.c ****     switch (name) {
+ 129:libscpi/src/ieee488.c ****         case SCPI_REG_STB:
+ 130:libscpi/src/ieee488.c ****             mask = SCPI_RegGet(context, SCPI_REG_SRE);
+ 131:libscpi/src/ieee488.c ****             mask &= ~STB_SRQ;
+ 132:libscpi/src/ieee488.c ****             if (val & mask) {
+ 133:libscpi/src/ieee488.c ****                 val |= STB_SRQ;
+ 134:libscpi/src/ieee488.c ****                 /* avoid sending SRQ if nothing has changed */
+ 135:libscpi/src/ieee488.c ****                 if (old_val != val) {
+ 136:libscpi/src/ieee488.c ****                     srq = TRUE;
+ 137:libscpi/src/ieee488.c ****                 }
+ 138:libscpi/src/ieee488.c ****             } else {
+ 139:libscpi/src/ieee488.c ****                 val &= ~STB_SRQ;
+ 140:libscpi/src/ieee488.c ****             }
+ 141:libscpi/src/ieee488.c ****             break;
+ 142:libscpi/src/ieee488.c ****         case SCPI_REG_SRE:
+ 143:libscpi/src/ieee488.c ****             regUpdate(context, SCPI_REG_STB);
+ 144:libscpi/src/ieee488.c ****             break;
+ 145:libscpi/src/ieee488.c ****         case SCPI_REG_ESR:
+ 146:libscpi/src/ieee488.c ****             regUpdateSTB(context, val, SCPI_REG_ESE, STB_ESR);
+ 147:libscpi/src/ieee488.c ****             break;
+ 148:libscpi/src/ieee488.c ****         case SCPI_REG_ESE:
+ 149:libscpi/src/ieee488.c ****             regUpdate(context, SCPI_REG_ESR);
+ 150:libscpi/src/ieee488.c ****             break;
+ 151:libscpi/src/ieee488.c ****         case SCPI_REG_QUES:
+ 152:libscpi/src/ieee488.c ****             regUpdateSTB(context, val, SCPI_REG_QUESE, STB_QES);
+ 153:libscpi/src/ieee488.c ****             break;
+ 154:libscpi/src/ieee488.c ****         case SCPI_REG_QUESE:
+ 155:libscpi/src/ieee488.c ****             regUpdate(context, SCPI_REG_QUES);
+ 156:libscpi/src/ieee488.c ****             break;
+ 157:libscpi/src/ieee488.c ****         case SCPI_REG_QUESC:
+ 158:libscpi/src/ieee488.c ****             regUpdateEvent(context, old_val, val, SCPI_REG_QUES);
+ 159:libscpi/src/ieee488.c ****             break;
+ 160:libscpi/src/ieee488.c ****         case SCPI_REG_OPER:
+ 161:libscpi/src/ieee488.c ****             regUpdateSTB(context, val, SCPI_REG_OPERE, STB_OPS);
+ 162:libscpi/src/ieee488.c ****             break;
+ 163:libscpi/src/ieee488.c ****         case SCPI_REG_OPERE:
+ 164:libscpi/src/ieee488.c ****             regUpdate(context, SCPI_REG_OPER);
+ 165:libscpi/src/ieee488.c ****             break;
+ 166:libscpi/src/ieee488.c ****         case SCPI_REG_OPERC:
+ 167:libscpi/src/ieee488.c ****             regUpdateEvent(context, old_val, val, SCPI_REG_OPER);
+ 168:libscpi/src/ieee488.c ****             break;
+ 169:libscpi/src/ieee488.c **** 
+ 170:libscpi/src/ieee488.c **** 
+ 171:libscpi/src/ieee488.c ****         case SCPI_REG_COUNT:
+ 172:libscpi/src/ieee488.c ****             /* nothing to do */
+ 173:libscpi/src/ieee488.c ****             break;
+ 174:libscpi/src/ieee488.c ****     }
+ 175:libscpi/src/ieee488.c **** 
+ 176:libscpi/src/ieee488.c ****     /* set updated register value */
+ 177:libscpi/src/ieee488.c ****     context->registers[name] = val;
+ 178:libscpi/src/ieee488.c **** 
+ 179:libscpi/src/ieee488.c ****     if (srq) {
+ 180:libscpi/src/ieee488.c ****         writeControl(context, SCPI_CTRL_SRQ, SCPI_RegGet(context, SCPI_REG_STB));
+ 181:libscpi/src/ieee488.c ****     }
+ 182:libscpi/src/ieee488.c **** }
+ 183:libscpi/src/ieee488.c **** 
+ 184:libscpi/src/ieee488.c **** /**
+ARM GAS  /tmp/ccarfPVd.s 			page 7
+
+
+ 185:libscpi/src/ieee488.c ****  * Set register bits
+ 186:libscpi/src/ieee488.c ****  * @param name - register name
+ 187:libscpi/src/ieee488.c ****  * @param bits bit mask
+ 188:libscpi/src/ieee488.c ****  */
+ 189:libscpi/src/ieee488.c **** void SCPI_RegSetBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+ 190:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name) | bits);
+ 191:libscpi/src/ieee488.c **** }
+ 192:libscpi/src/ieee488.c **** 
+ 193:libscpi/src/ieee488.c **** /**
+ 194:libscpi/src/ieee488.c ****  * Clear register bits
+ 195:libscpi/src/ieee488.c ****  * @param name - register name
+ 196:libscpi/src/ieee488.c ****  * @param bits bit mask
+ 197:libscpi/src/ieee488.c ****  */
+ 198:libscpi/src/ieee488.c **** void SCPI_RegClearBits(scpi_t * context, scpi_reg_name_t name, scpi_reg_val_t bits) {
+ 146              		.loc 1 198 85 is_stmt 1 view -0
+ 147              		.cfi_startproc
+ 148              		@ args = 0, pretend = 0, frame = 0
+ 149              		@ frame_needed = 0, uses_anonymous_args = 0
+ 150              		.loc 1 198 85 is_stmt 0 view .LVU30
+ 151 0000 70B5     		push	{r4, r5, r6, lr}
+ 152              	.LCFI1:
+ 153              		.cfi_def_cfa_offset 16
+ 154              		.cfi_offset 4, -16
+ 155              		.cfi_offset 5, -12
+ 156              		.cfi_offset 6, -8
+ 157              		.cfi_offset 14, -4
+ 158 0002 0400     		movs	r4, r0
+ 159 0004 0D00     		movs	r5, r1
+ 160 0006 1600     		movs	r6, r2
+ 199:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name) & ~bits);
+ 161              		.loc 1 199 5 is_stmt 1 view .LVU31
+ 162              		.loc 1 199 32 is_stmt 0 view .LVU32
+ 163 0008 FFF7FEFF 		bl	SCPI_RegGet
+ 164              	.LVL16:
+ 165              		.loc 1 199 32 view .LVU33
+ 166 000c 02B2     		sxth	r2, r0
+ 167              		.loc 1 199 59 view .LVU34
+ 168 000e B243     		bics	r2, r6
+ 169              		.loc 1 199 5 view .LVU35
+ 170 0010 92B2     		uxth	r2, r2
+ 171 0012 2900     		movs	r1, r5
+ 172 0014 2000     		movs	r0, r4
+ 173 0016 FFF7FEFF 		bl	SCPI_RegSet
+ 174              	.LVL17:
+ 200:libscpi/src/ieee488.c **** }
+ 175              		.loc 1 200 1 view .LVU36
+ 176              		@ sp needed
+ 177              	.LVL18:
+ 178              		.loc 1 200 1 view .LVU37
+ 179 001a 70BD     		pop	{r4, r5, r6, pc}
+ 180              		.cfi_endproc
+ 181              	.LFE10:
+ 183              		.section	.text.regUpdateSTB,"ax",%progbits
+ 184              		.align	1
+ 185              		.syntax unified
+ 186              		.code	16
+ 187              		.thumb_func
+ARM GAS  /tmp/ccarfPVd.s 			page 8
+
+
+ 188              		.fpu softvfp
+ 190              	regUpdateSTB:
+ 191              	.LVL19:
+ 192              	.LFB5:
+  72:libscpi/src/ieee488.c ****     if (val & SCPI_RegGet(context, mask)) {
+ 193              		.loc 1 72 110 is_stmt 1 view -0
+ 194              		.cfi_startproc
+ 195              		@ args = 0, pretend = 0, frame = 0
+ 196              		@ frame_needed = 0, uses_anonymous_args = 0
+  72:libscpi/src/ieee488.c ****     if (val & SCPI_RegGet(context, mask)) {
+ 197              		.loc 1 72 110 is_stmt 0 view .LVU39
+ 198 0000 70B5     		push	{r4, r5, r6, lr}
+ 199              	.LCFI2:
+ 200              		.cfi_def_cfa_offset 16
+ 201              		.cfi_offset 4, -16
+ 202              		.cfi_offset 5, -12
+ 203              		.cfi_offset 6, -8
+ 204              		.cfi_offset 14, -4
+ 205 0002 0400     		movs	r4, r0
+ 206 0004 0E00     		movs	r6, r1
+ 207 0006 1100     		movs	r1, r2
+ 208              	.LVL20:
+  72:libscpi/src/ieee488.c ****     if (val & SCPI_RegGet(context, mask)) {
+ 209              		.loc 1 72 110 view .LVU40
+ 210 0008 1D00     		movs	r5, r3
+  73:libscpi/src/ieee488.c ****         SCPI_RegSetBits(context, SCPI_REG_STB, stbBits);
+ 211              		.loc 1 73 5 is_stmt 1 view .LVU41
+  73:libscpi/src/ieee488.c ****         SCPI_RegSetBits(context, SCPI_REG_STB, stbBits);
+ 212              		.loc 1 73 15 is_stmt 0 view .LVU42
+ 213 000a FFF7FEFF 		bl	SCPI_RegGet
+ 214              	.LVL21:
+  73:libscpi/src/ieee488.c ****         SCPI_RegSetBits(context, SCPI_REG_STB, stbBits);
+ 215              		.loc 1 73 8 view .LVU43
+ 216 000e 0642     		tst	r6, r0
+ 217 0010 05D0     		beq	.L12
+  74:libscpi/src/ieee488.c ****     } else {
+ 218              		.loc 1 74 9 is_stmt 1 view .LVU44
+ 219 0012 2A00     		movs	r2, r5
+ 220 0014 0021     		movs	r1, #0
+ 221 0016 2000     		movs	r0, r4
+ 222 0018 FFF7FEFF 		bl	SCPI_RegSetBits
+ 223              	.LVL22:
+ 224              	.L11:
+  78:libscpi/src/ieee488.c **** 
+ 225              		.loc 1 78 1 is_stmt 0 view .LVU45
+ 226              		@ sp needed
+ 227              	.LVL23:
+  78:libscpi/src/ieee488.c **** 
+ 228              		.loc 1 78 1 view .LVU46
+ 229 001c 70BD     		pop	{r4, r5, r6, pc}
+ 230              	.LVL24:
+ 231              	.L12:
+  76:libscpi/src/ieee488.c ****     }
+ 232              		.loc 1 76 9 is_stmt 1 view .LVU47
+ 233 001e 2A00     		movs	r2, r5
+ 234 0020 0021     		movs	r1, #0
+ 235 0022 2000     		movs	r0, r4
+ARM GAS  /tmp/ccarfPVd.s 			page 9
+
+
+ 236 0024 FFF7FEFF 		bl	SCPI_RegClearBits
+ 237              	.LVL25:
+  78:libscpi/src/ieee488.c **** 
+ 238              		.loc 1 78 1 is_stmt 0 view .LVU48
+ 239 0028 F8E7     		b	.L11
+ 240              		.cfi_endproc
+ 241              	.LFE5:
+ 243              		.section	.text.SCPI_RegSet,"ax",%progbits
+ 244              		.align	1
+ 245              		.global	SCPI_RegSet
+ 246              		.syntax unified
+ 247              		.code	16
+ 248              		.thumb_func
+ 249              		.fpu softvfp
+ 251              	SCPI_RegSet:
+ 252              	.LVL26:
+ 253              	.LFB8:
+ 112:libscpi/src/ieee488.c ****     scpi_bool_t srq = FALSE;
+ 254              		.loc 1 112 78 is_stmt 1 view -0
+ 255              		.cfi_startproc
+ 256              		@ args = 0, pretend = 0, frame = 0
+ 257              		@ frame_needed = 0, uses_anonymous_args = 0
+ 112:libscpi/src/ieee488.c ****     scpi_bool_t srq = FALSE;
+ 258              		.loc 1 112 78 is_stmt 0 view .LVU50
+ 259 0000 F8B5     		push	{r3, r4, r5, r6, r7, lr}
+ 260              	.LCFI3:
+ 261              		.cfi_def_cfa_offset 24
+ 262              		.cfi_offset 3, -24
+ 263              		.cfi_offset 4, -20
+ 264              		.cfi_offset 5, -16
+ 265              		.cfi_offset 6, -12
+ 266              		.cfi_offset 7, -8
+ 267              		.cfi_offset 14, -4
+ 268 0002 0500     		movs	r5, r0
+ 269 0004 0C00     		movs	r4, r1
+ 270 0006 1600     		movs	r6, r2
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 271              		.loc 1 113 5 is_stmt 1 view .LVU51
+ 272              	.LVL27:
+ 114:libscpi/src/ieee488.c ****     scpi_reg_val_t old_val;
+ 273              		.loc 1 114 5 view .LVU52
+ 115:libscpi/src/ieee488.c **** 
+ 274              		.loc 1 115 5 view .LVU53
+ 117:libscpi/src/ieee488.c ****         return;
+ 275              		.loc 1 117 5 view .LVU54
+ 117:libscpi/src/ieee488.c ****         return;
+ 276              		.loc 1 117 8 is_stmt 0 view .LVU55
+ 277 0008 0929     		cmp	r1, #9
+ 278 000a 29D8     		bhi	.L14
+ 117:libscpi/src/ieee488.c ****         return;
+ 279              		.loc 1 117 34 discriminator 1 view .LVU56
+ 280 000c 0028     		cmp	r0, #0
+ 281 000e 27D0     		beq	.L14
+ 122:libscpi/src/ieee488.c **** 
+ 282              		.loc 1 122 5 is_stmt 1 view .LVU57
+ 122:libscpi/src/ieee488.c **** 
+ 283              		.loc 1 122 13 is_stmt 0 view .LVU58
+ARM GAS  /tmp/ccarfPVd.s 			page 10
+
+
+ 284 0010 0B00     		movs	r3, r1
+ 285 0012 2433     		adds	r3, r3, #36
+ 286 0014 5B00     		lsls	r3, r3, #1
+ 287 0016 1F5A     		ldrh	r7, [r3, r0]
+ 288              	.LVL28:
+ 125:libscpi/src/ieee488.c **** 
+ 289              		.loc 1 125 5 is_stmt 1 view .LVU59
+ 125:libscpi/src/ieee488.c **** 
+ 290              		.loc 1 125 30 is_stmt 0 view .LVU60
+ 291 0018 1A52     		strh	r2, [r3, r0]
+ 128:libscpi/src/ieee488.c ****         case SCPI_REG_STB:
+ 292              		.loc 1 128 5 is_stmt 1 view .LVU61
+ 293 001a 0929     		cmp	r1, #9
+ 294 001c 53D8     		bhi	.L29
+ 295 001e 8B00     		lsls	r3, r1, #2
+ 296 0020 2F4A     		ldr	r2, .L33
+ 297              	.LVL29:
+ 128:libscpi/src/ieee488.c ****         case SCPI_REG_STB:
+ 298              		.loc 1 128 5 is_stmt 0 view .LVU62
+ 299 0022 D358     		ldr	r3, [r2, r3]
+ 300 0024 9F46     		mov	pc, r3
+ 301              		.section	.rodata.SCPI_RegSet,"a",%progbits
+ 302              		.align	2
+ 303              	.L18:
+ 304 0000 26000000 		.word	.L27
+ 305 0004 4E000000 		.word	.L26
+ 306 0008 62000000 		.word	.L25
+ 307 000c 70000000 		.word	.L24
+ 308 0010 A0000000 		.word	.L23
+ 309 0014 AE000000 		.word	.L22
+ 310 0018 B8000000 		.word	.L21
+ 311 001c 7A000000 		.word	.L20
+ 312 0020 88000000 		.word	.L19
+ 313 0024 92000000 		.word	.L17
+ 314              		.section	.text.SCPI_RegSet
+ 315              	.L27:
+ 130:libscpi/src/ieee488.c ****             mask &= ~STB_SRQ;
+ 316              		.loc 1 130 13 is_stmt 1 view .LVU63
+ 130:libscpi/src/ieee488.c ****             mask &= ~STB_SRQ;
+ 317              		.loc 1 130 20 is_stmt 0 view .LVU64
+ 318 0026 0121     		movs	r1, #1
+ 319              	.LVL30:
+ 130:libscpi/src/ieee488.c ****             mask &= ~STB_SRQ;
+ 320              		.loc 1 130 20 view .LVU65
+ 321 0028 FFF7FEFF 		bl	SCPI_RegGet
+ 322              	.LVL31:
+ 131:libscpi/src/ieee488.c ****             if (val & mask) {
+ 323              		.loc 1 131 13 is_stmt 1 view .LVU66
+ 131:libscpi/src/ieee488.c ****             if (val & mask) {
+ 324              		.loc 1 131 18 is_stmt 0 view .LVU67
+ 325 002c 4023     		movs	r3, #64
+ 326 002e 9843     		bics	r0, r3
+ 327              	.LVL32:
+ 132:libscpi/src/ieee488.c ****                 val |= STB_SRQ;
+ 328              		.loc 1 132 13 is_stmt 1 view .LVU68
+ 132:libscpi/src/ieee488.c ****                 val |= STB_SRQ;
+ 329              		.loc 1 132 16 is_stmt 0 view .LVU69
+ARM GAS  /tmp/ccarfPVd.s 			page 11
+
+
+ 330 0030 3042     		tst	r0, r6
+ 331 0032 08D0     		beq	.L28
+ 133:libscpi/src/ieee488.c ****                 /* avoid sending SRQ if nothing has changed */
+ 332              		.loc 1 133 17 is_stmt 1 view .LVU70
+ 133:libscpi/src/ieee488.c ****                 /* avoid sending SRQ if nothing has changed */
+ 333              		.loc 1 133 21 is_stmt 0 view .LVU71
+ 334 0034 4022     		movs	r2, #64
+ 335 0036 1643     		orrs	r6, r2
+ 336 0038 B6B2     		uxth	r6, r6
+ 337              	.LVL33:
+ 135:libscpi/src/ieee488.c ****                     srq = TRUE;
+ 338              		.loc 1 135 17 is_stmt 1 view .LVU72
+ 135:libscpi/src/ieee488.c ****                     srq = TRUE;
+ 339              		.loc 1 135 20 is_stmt 0 view .LVU73
+ 340 003a B742     		cmp	r7, r6
+ 341 003c 01D0     		beq	.L31
+ 136:libscpi/src/ieee488.c ****                 }
+ 342              		.loc 1 136 25 view .LVU74
+ 343 003e 0123     		movs	r3, #1
+ 344 0040 09E0     		b	.L16
+ 345              	.L31:
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 346              		.loc 1 113 17 view .LVU75
+ 347 0042 0023     		movs	r3, #0
+ 348 0044 07E0     		b	.L16
+ 349              	.LVL34:
+ 350              	.L28:
+ 139:libscpi/src/ieee488.c ****             }
+ 351              		.loc 1 139 17 is_stmt 1 view .LVU76
+ 139:libscpi/src/ieee488.c ****             }
+ 352              		.loc 1 139 21 is_stmt 0 view .LVU77
+ 353 0046 4023     		movs	r3, #64
+ 354 0048 9E43     		bics	r6, r3
+ 355              	.LVL35:
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 356              		.loc 1 113 17 view .LVU78
+ 357 004a 0023     		movs	r3, #0
+ 358 004c 03E0     		b	.L16
+ 359              	.LVL36:
+ 360              	.L26:
+ 143:libscpi/src/ieee488.c ****             break;
+ 361              		.loc 1 143 13 is_stmt 1 view .LVU79
+ 362 004e 0021     		movs	r1, #0
+ 363              	.LVL37:
+ 143:libscpi/src/ieee488.c ****             break;
+ 364              		.loc 1 143 13 is_stmt 0 view .LVU80
+ 365 0050 FFF7FEFF 		bl	regUpdate
+ 366              	.LVL38:
+ 144:libscpi/src/ieee488.c ****         case SCPI_REG_ESR:
+ 367              		.loc 1 144 13 is_stmt 1 view .LVU81
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 368              		.loc 1 113 17 is_stmt 0 view .LVU82
+ 369 0054 0023     		movs	r3, #0
+ 370              	.LVL39:
+ 371              	.L16:
+ 177:libscpi/src/ieee488.c **** 
+ 372              		.loc 1 177 5 is_stmt 1 view .LVU83
+ARM GAS  /tmp/ccarfPVd.s 			page 12
+
+
+ 177:libscpi/src/ieee488.c **** 
+ 373              		.loc 1 177 30 is_stmt 0 view .LVU84
+ 374 0056 2434     		adds	r4, r4, #36
+ 375 0058 6400     		lsls	r4, r4, #1
+ 376 005a 6653     		strh	r6, [r4, r5]
+ 179:libscpi/src/ieee488.c ****         writeControl(context, SCPI_CTRL_SRQ, SCPI_RegGet(context, SCPI_REG_STB));
+ 377              		.loc 1 179 5 is_stmt 1 view .LVU85
+ 179:libscpi/src/ieee488.c ****         writeControl(context, SCPI_CTRL_SRQ, SCPI_RegGet(context, SCPI_REG_STB));
+ 378              		.loc 1 179 8 is_stmt 0 view .LVU86
+ 379 005c 002B     		cmp	r3, #0
+ 380 005e 34D1     		bne	.L32
+ 381              	.LVL40:
+ 382              	.L14:
+ 182:libscpi/src/ieee488.c **** 
+ 383              		.loc 1 182 1 view .LVU87
+ 384              		@ sp needed
+ 385              	.LVL41:
+ 182:libscpi/src/ieee488.c **** 
+ 386              		.loc 1 182 1 view .LVU88
+ 387 0060 F8BD     		pop	{r3, r4, r5, r6, r7, pc}
+ 388              	.LVL42:
+ 389              	.L25:
+ 146:libscpi/src/ieee488.c ****             break;
+ 390              		.loc 1 146 13 is_stmt 1 view .LVU89
+ 391 0062 2023     		movs	r3, #32
+ 392 0064 0322     		movs	r2, #3
+ 393 0066 3100     		movs	r1, r6
+ 394              	.LVL43:
+ 146:libscpi/src/ieee488.c ****             break;
+ 395              		.loc 1 146 13 is_stmt 0 view .LVU90
+ 396 0068 FFF7FEFF 		bl	regUpdateSTB
+ 397              	.LVL44:
+ 147:libscpi/src/ieee488.c ****         case SCPI_REG_ESE:
+ 398              		.loc 1 147 13 is_stmt 1 view .LVU91
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 399              		.loc 1 113 17 is_stmt 0 view .LVU92
+ 400 006c 0023     		movs	r3, #0
+ 147:libscpi/src/ieee488.c ****         case SCPI_REG_ESE:
+ 401              		.loc 1 147 13 view .LVU93
+ 402 006e F2E7     		b	.L16
+ 403              	.LVL45:
+ 404              	.L24:
+ 149:libscpi/src/ieee488.c ****             break;
+ 405              		.loc 1 149 13 is_stmt 1 view .LVU94
+ 406 0070 0221     		movs	r1, #2
+ 407              	.LVL46:
+ 149:libscpi/src/ieee488.c ****             break;
+ 408              		.loc 1 149 13 is_stmt 0 view .LVU95
+ 409 0072 FFF7FEFF 		bl	regUpdate
+ 410              	.LVL47:
+ 150:libscpi/src/ieee488.c ****         case SCPI_REG_QUES:
+ 411              		.loc 1 150 13 is_stmt 1 view .LVU96
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 412              		.loc 1 113 17 is_stmt 0 view .LVU97
+ 413 0076 0023     		movs	r3, #0
+ 150:libscpi/src/ieee488.c ****         case SCPI_REG_QUES:
+ 414              		.loc 1 150 13 view .LVU98
+ARM GAS  /tmp/ccarfPVd.s 			page 13
+
+
+ 415 0078 EDE7     		b	.L16
+ 416              	.LVL48:
+ 417              	.L20:
+ 152:libscpi/src/ieee488.c ****             break;
+ 418              		.loc 1 152 13 is_stmt 1 view .LVU99
+ 419 007a 0823     		movs	r3, #8
+ 420 007c 0822     		movs	r2, #8
+ 421 007e 3100     		movs	r1, r6
+ 422              	.LVL49:
+ 152:libscpi/src/ieee488.c ****             break;
+ 423              		.loc 1 152 13 is_stmt 0 view .LVU100
+ 424 0080 FFF7FEFF 		bl	regUpdateSTB
+ 425              	.LVL50:
+ 153:libscpi/src/ieee488.c ****         case SCPI_REG_QUESE:
+ 426              		.loc 1 153 13 is_stmt 1 view .LVU101
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 427              		.loc 1 113 17 is_stmt 0 view .LVU102
+ 428 0084 0023     		movs	r3, #0
+ 153:libscpi/src/ieee488.c ****         case SCPI_REG_QUESE:
+ 429              		.loc 1 153 13 view .LVU103
+ 430 0086 E6E7     		b	.L16
+ 431              	.LVL51:
+ 432              	.L19:
+ 155:libscpi/src/ieee488.c ****             break;
+ 433              		.loc 1 155 13 is_stmt 1 view .LVU104
+ 434 0088 0721     		movs	r1, #7
+ 435              	.LVL52:
+ 155:libscpi/src/ieee488.c ****             break;
+ 436              		.loc 1 155 13 is_stmt 0 view .LVU105
+ 437 008a FFF7FEFF 		bl	regUpdate
+ 438              	.LVL53:
+ 156:libscpi/src/ieee488.c ****         case SCPI_REG_QUESC:
+ 439              		.loc 1 156 13 is_stmt 1 view .LVU106
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 440              		.loc 1 113 17 is_stmt 0 view .LVU107
+ 441 008e 0023     		movs	r3, #0
+ 156:libscpi/src/ieee488.c ****         case SCPI_REG_QUESC:
+ 442              		.loc 1 156 13 view .LVU108
+ 443 0090 E1E7     		b	.L16
+ 444              	.LVL54:
+ 445              	.L17:
+ 158:libscpi/src/ieee488.c ****             break;
+ 446              		.loc 1 158 13 is_stmt 1 view .LVU109
+ 447 0092 0723     		movs	r3, #7
+ 448 0094 3200     		movs	r2, r6
+ 449 0096 3900     		movs	r1, r7
+ 450              	.LVL55:
+ 158:libscpi/src/ieee488.c ****             break;
+ 451              		.loc 1 158 13 is_stmt 0 view .LVU110
+ 452 0098 FFF7FEFF 		bl	regUpdateEvent
+ 453              	.LVL56:
+ 159:libscpi/src/ieee488.c ****         case SCPI_REG_OPER:
+ 454              		.loc 1 159 13 is_stmt 1 view .LVU111
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 455              		.loc 1 113 17 is_stmt 0 view .LVU112
+ 456 009c 0023     		movs	r3, #0
+ 159:libscpi/src/ieee488.c ****         case SCPI_REG_OPER:
+ARM GAS  /tmp/ccarfPVd.s 			page 14
+
+
+ 457              		.loc 1 159 13 view .LVU113
+ 458 009e DAE7     		b	.L16
+ 459              	.LVL57:
+ 460              	.L23:
+ 161:libscpi/src/ieee488.c ****             break;
+ 461              		.loc 1 161 13 is_stmt 1 view .LVU114
+ 462 00a0 8023     		movs	r3, #128
+ 463 00a2 0522     		movs	r2, #5
+ 464 00a4 3100     		movs	r1, r6
+ 465              	.LVL58:
+ 161:libscpi/src/ieee488.c ****             break;
+ 466              		.loc 1 161 13 is_stmt 0 view .LVU115
+ 467 00a6 FFF7FEFF 		bl	regUpdateSTB
+ 468              	.LVL59:
+ 162:libscpi/src/ieee488.c ****         case SCPI_REG_OPERE:
+ 469              		.loc 1 162 13 is_stmt 1 view .LVU116
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 470              		.loc 1 113 17 is_stmt 0 view .LVU117
+ 471 00aa 0023     		movs	r3, #0
+ 162:libscpi/src/ieee488.c ****         case SCPI_REG_OPERE:
+ 472              		.loc 1 162 13 view .LVU118
+ 473 00ac D3E7     		b	.L16
+ 474              	.LVL60:
+ 475              	.L22:
+ 164:libscpi/src/ieee488.c ****             break;
+ 476              		.loc 1 164 13 is_stmt 1 view .LVU119
+ 477 00ae 0421     		movs	r1, #4
+ 478              	.LVL61:
+ 164:libscpi/src/ieee488.c ****             break;
+ 479              		.loc 1 164 13 is_stmt 0 view .LVU120
+ 480 00b0 FFF7FEFF 		bl	regUpdate
+ 481              	.LVL62:
+ 165:libscpi/src/ieee488.c ****         case SCPI_REG_OPERC:
+ 482              		.loc 1 165 13 is_stmt 1 view .LVU121
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 483              		.loc 1 113 17 is_stmt 0 view .LVU122
+ 484 00b4 0023     		movs	r3, #0
+ 165:libscpi/src/ieee488.c ****         case SCPI_REG_OPERC:
+ 485              		.loc 1 165 13 view .LVU123
+ 486 00b6 CEE7     		b	.L16
+ 487              	.LVL63:
+ 488              	.L21:
+ 167:libscpi/src/ieee488.c ****             break;
+ 489              		.loc 1 167 13 is_stmt 1 view .LVU124
+ 490 00b8 0423     		movs	r3, #4
+ 491 00ba 3200     		movs	r2, r6
+ 492 00bc 3900     		movs	r1, r7
+ 493              	.LVL64:
+ 167:libscpi/src/ieee488.c ****             break;
+ 494              		.loc 1 167 13 is_stmt 0 view .LVU125
+ 495 00be FFF7FEFF 		bl	regUpdateEvent
+ 496              	.LVL65:
+ 168:libscpi/src/ieee488.c **** 
+ 497              		.loc 1 168 13 is_stmt 1 view .LVU126
+ 113:libscpi/src/ieee488.c ****     scpi_reg_val_t mask;
+ 498              		.loc 1 113 17 is_stmt 0 view .LVU127
+ 499 00c2 0023     		movs	r3, #0
+ARM GAS  /tmp/ccarfPVd.s 			page 15
+
+
+ 168:libscpi/src/ieee488.c **** 
+ 500              		.loc 1 168 13 view .LVU128
+ 501 00c4 C7E7     		b	.L16
+ 502              	.LVL66:
+ 503              	.L29:
+ 125:libscpi/src/ieee488.c **** 
+ 504              		.loc 1 125 30 view .LVU129
+ 505 00c6 0023     		movs	r3, #0
+ 506 00c8 C5E7     		b	.L16
+ 507              	.LVL67:
+ 508              	.L32:
+ 180:libscpi/src/ieee488.c ****     }
+ 509              		.loc 1 180 9 is_stmt 1 view .LVU130
+ 510 00ca 0021     		movs	r1, #0
+ 511 00cc 2800     		movs	r0, r5
+ 512 00ce FFF7FEFF 		bl	SCPI_RegGet
+ 513              	.LVL68:
+ 180:libscpi/src/ieee488.c ****     }
+ 514              		.loc 1 180 9 is_stmt 0 view .LVU131
+ 515 00d2 0200     		movs	r2, r0
+ 516 00d4 0121     		movs	r1, #1
+ 517 00d6 2800     		movs	r0, r5
+ 518 00d8 FFF7FEFF 		bl	writeControl
+ 519              	.LVL69:
+ 520 00dc C0E7     		b	.L14
+ 521              	.L34:
+ 522 00de C046     		.align	2
+ 523              	.L33:
+ 524 00e0 00000000 		.word	.L18
+ 525              		.cfi_endproc
+ 526              	.LFE8:
+ 528              		.section	.text.regUpdate,"ax",%progbits
+ 529              		.align	1
+ 530              		.syntax unified
+ 531              		.code	16
+ 532              		.thumb_func
+ 533              		.fpu softvfp
+ 535              	regUpdate:
+ 536              	.LVL70:
+ 537              	.LFB3:
+  50:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name));
+ 538              		.loc 1 50 63 is_stmt 1 view -0
+ 539              		.cfi_startproc
+ 540              		@ args = 0, pretend = 0, frame = 0
+ 541              		@ frame_needed = 0, uses_anonymous_args = 0
+  50:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name));
+ 542              		.loc 1 50 63 is_stmt 0 view .LVU133
+ 543 0000 70B5     		push	{r4, r5, r6, lr}
+ 544              	.LCFI4:
+ 545              		.cfi_def_cfa_offset 16
+ 546              		.cfi_offset 4, -16
+ 547              		.cfi_offset 5, -12
+ 548              		.cfi_offset 6, -8
+ 549              		.cfi_offset 14, -4
+ 550 0002 0400     		movs	r4, r0
+ 551 0004 0D00     		movs	r5, r1
+  51:libscpi/src/ieee488.c **** }
+ARM GAS  /tmp/ccarfPVd.s 			page 16
+
+
+ 552              		.loc 1 51 5 is_stmt 1 view .LVU134
+ 553 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 554              	.LVL71:
+  51:libscpi/src/ieee488.c **** }
+ 555              		.loc 1 51 5 is_stmt 0 view .LVU135
+ 556 000a 0200     		movs	r2, r0
+ 557 000c 2900     		movs	r1, r5
+ 558 000e 2000     		movs	r0, r4
+ 559 0010 FFF7FEFF 		bl	SCPI_RegSet
+ 560              	.LVL72:
+  52:libscpi/src/ieee488.c **** 
+ 561              		.loc 1 52 1 view .LVU136
+ 562              		@ sp needed
+ 563              	.LVL73:
+  52:libscpi/src/ieee488.c **** 
+ 564              		.loc 1 52 1 view .LVU137
+ 565 0014 70BD     		pop	{r4, r5, r6, pc}
+ 566              		.cfi_endproc
+ 567              	.LFE3:
+ 569              		.section	.text.regUpdateEvent,"ax",%progbits
+ 570              		.align	1
+ 571              		.syntax unified
+ 572              		.code	16
+ 573              		.thumb_func
+ 574              		.fpu softvfp
+ 576              	regUpdateEvent:
+ 577              	.LVL74:
+ 578              	.LFB4:
+  61:libscpi/src/ieee488.c ****     SCPI_RegSet(context, eventReg, ((oldCondVal ^ newCondVal) & newCondVal) | SCPI_RegGet(context, 
+ 579              		.loc 1 61 126 is_stmt 1 view -0
+ 580              		.cfi_startproc
+ 581              		@ args = 0, pretend = 0, frame = 0
+ 582              		@ frame_needed = 0, uses_anonymous_args = 0
+  61:libscpi/src/ieee488.c ****     SCPI_RegSet(context, eventReg, ((oldCondVal ^ newCondVal) & newCondVal) | SCPI_RegGet(context, 
+ 583              		.loc 1 61 126 is_stmt 0 view .LVU139
+ 584 0000 70B5     		push	{r4, r5, r6, lr}
+ 585              	.LCFI5:
+ 586              		.cfi_def_cfa_offset 16
+ 587              		.cfi_offset 4, -16
+ 588              		.cfi_offset 5, -12
+ 589              		.cfi_offset 6, -8
+ 590              		.cfi_offset 14, -4
+ 591 0002 0500     		movs	r5, r0
+ 592 0004 1E00     		movs	r6, r3
+  62:libscpi/src/ieee488.c **** }
+ 593              		.loc 1 62 5 is_stmt 1 view .LVU140
+ 594 0006 8A43     		bics	r2, r1
+ 595              	.LVL75:
+  62:libscpi/src/ieee488.c **** }
+ 596              		.loc 1 62 5 is_stmt 0 view .LVU141
+ 597 0008 1400     		movs	r4, r2
+  62:libscpi/src/ieee488.c **** }
+ 598              		.loc 1 62 79 view .LVU142
+ 599 000a 1900     		movs	r1, r3
+ 600              	.LVL76:
+  62:libscpi/src/ieee488.c **** }
+ 601              		.loc 1 62 79 view .LVU143
+ARM GAS  /tmp/ccarfPVd.s 			page 17
+
+
+ 602 000c FFF7FEFF 		bl	SCPI_RegGet
+ 603              	.LVL77:
+  62:libscpi/src/ieee488.c **** }
+ 604              		.loc 1 62 5 view .LVU144
+ 605 0010 0443     		orrs	r4, r0
+ 606 0012 A2B2     		uxth	r2, r4
+ 607 0014 3100     		movs	r1, r6
+ 608 0016 2800     		movs	r0, r5
+ 609 0018 FFF7FEFF 		bl	SCPI_RegSet
+ 610              	.LVL78:
+  63:libscpi/src/ieee488.c **** 
+ 611              		.loc 1 63 1 view .LVU145
+ 612              		@ sp needed
+ 613              	.LVL79:
+  63:libscpi/src/ieee488.c **** 
+ 614              		.loc 1 63 1 view .LVU146
+ 615 001c 70BD     		pop	{r4, r5, r6, pc}
+ 616              		.cfi_endproc
+ 617              	.LFE4:
+ 619              		.section	.text.SCPI_RegSetBits,"ax",%progbits
+ 620              		.align	1
+ 621              		.global	SCPI_RegSetBits
+ 622              		.syntax unified
+ 623              		.code	16
+ 624              		.thumb_func
+ 625              		.fpu softvfp
+ 627              	SCPI_RegSetBits:
+ 628              	.LVL80:
+ 629              	.LFB9:
+ 189:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name) | bits);
+ 630              		.loc 1 189 83 is_stmt 1 view -0
+ 631              		.cfi_startproc
+ 632              		@ args = 0, pretend = 0, frame = 0
+ 633              		@ frame_needed = 0, uses_anonymous_args = 0
+ 189:libscpi/src/ieee488.c ****     SCPI_RegSet(context, name, SCPI_RegGet(context, name) | bits);
+ 634              		.loc 1 189 83 is_stmt 0 view .LVU148
+ 635 0000 70B5     		push	{r4, r5, r6, lr}
+ 636              	.LCFI6:
+ 637              		.cfi_def_cfa_offset 16
+ 638              		.cfi_offset 4, -16
+ 639              		.cfi_offset 5, -12
+ 640              		.cfi_offset 6, -8
+ 641              		.cfi_offset 14, -4
+ 642 0002 0400     		movs	r4, r0
+ 643 0004 0D00     		movs	r5, r1
+ 644 0006 1600     		movs	r6, r2
+ 190:libscpi/src/ieee488.c **** }
+ 645              		.loc 1 190 5 is_stmt 1 view .LVU149
+ 190:libscpi/src/ieee488.c **** }
+ 646              		.loc 1 190 32 is_stmt 0 view .LVU150
+ 647 0008 FFF7FEFF 		bl	SCPI_RegGet
+ 648              	.LVL81:
+ 190:libscpi/src/ieee488.c **** }
+ 649              		.loc 1 190 5 view .LVU151
+ 650 000c 0200     		movs	r2, r0
+ 651 000e 3243     		orrs	r2, r6
+ 652 0010 92B2     		uxth	r2, r2
+ARM GAS  /tmp/ccarfPVd.s 			page 18
+
+
+ 653 0012 2900     		movs	r1, r5
+ 654 0014 2000     		movs	r0, r4
+ 655 0016 FFF7FEFF 		bl	SCPI_RegSet
+ 656              	.LVL82:
+ 191:libscpi/src/ieee488.c **** 
+ 657              		.loc 1 191 1 view .LVU152
+ 658              		@ sp needed
+ 659              	.LVL83:
+ 191:libscpi/src/ieee488.c **** 
+ 660              		.loc 1 191 1 view .LVU153
+ 661 001a 70BD     		pop	{r4, r5, r6, pc}
+ 662              		.cfi_endproc
+ 663              	.LFE9:
+ 665              		.section	.text.SCPI_EventClear,"ax",%progbits
+ 666              		.align	1
+ 667              		.global	SCPI_EventClear
+ 668              		.syntax unified
+ 669              		.code	16
+ 670              		.thumb_func
+ 671              		.fpu softvfp
+ 673              	SCPI_EventClear:
+ 674              	.LVL84:
+ 675              	.LFB11:
+ 201:libscpi/src/ieee488.c **** 
+ 202:libscpi/src/ieee488.c **** /**
+ 203:libscpi/src/ieee488.c ****  * Clear event register
+ 204:libscpi/src/ieee488.c ****  * @param context
+ 205:libscpi/src/ieee488.c ****  */
+ 206:libscpi/src/ieee488.c **** void SCPI_EventClear(scpi_t * context) {
+ 676              		.loc 1 206 40 is_stmt 1 view -0
+ 677              		.cfi_startproc
+ 678              		@ args = 0, pretend = 0, frame = 0
+ 679              		@ frame_needed = 0, uses_anonymous_args = 0
+ 680              		.loc 1 206 40 is_stmt 0 view .LVU155
+ 681 0000 10B5     		push	{r4, lr}
+ 682              	.LCFI7:
+ 683              		.cfi_def_cfa_offset 8
+ 684              		.cfi_offset 4, -8
+ 685              		.cfi_offset 14, -4
+ 207:libscpi/src/ieee488.c ****     /* TODO */
+ 208:libscpi/src/ieee488.c ****     SCPI_RegSet(context, SCPI_REG_ESR, 0);
+ 686              		.loc 1 208 5 is_stmt 1 view .LVU156
+ 687 0002 0022     		movs	r2, #0
+ 688 0004 0221     		movs	r1, #2
+ 689 0006 FFF7FEFF 		bl	SCPI_RegSet
+ 690              	.LVL85:
+ 209:libscpi/src/ieee488.c **** }
+ 691              		.loc 1 209 1 is_stmt 0 view .LVU157
+ 692              		@ sp needed
+ 693 000a 10BD     		pop	{r4, pc}
+ 694              		.cfi_endproc
+ 695              	.LFE11:
+ 697              		.section	.text.SCPI_CoreCls,"ax",%progbits
+ 698              		.align	1
+ 699              		.global	SCPI_CoreCls
+ 700              		.syntax unified
+ 701              		.code	16
+ARM GAS  /tmp/ccarfPVd.s 			page 19
+
+
+ 702              		.thumb_func
+ 703              		.fpu softvfp
+ 705              	SCPI_CoreCls:
+ 706              	.LVL86:
+ 707              	.LFB12:
+ 210:libscpi/src/ieee488.c **** 
+ 211:libscpi/src/ieee488.c **** /**
+ 212:libscpi/src/ieee488.c ****  * *CLS - This command clears all status data structures in a device. 
+ 213:libscpi/src/ieee488.c ****  *        For a device which minimally complies with SCPI. (SCPI std 4.1.3.2)
+ 214:libscpi/src/ieee488.c ****  * @param context
+ 215:libscpi/src/ieee488.c ****  * @return 
+ 216:libscpi/src/ieee488.c ****  */
+ 217:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreCls(scpi_t * context) {
+ 708              		.loc 1 217 46 is_stmt 1 view -0
+ 709              		.cfi_startproc
+ 710              		@ args = 0, pretend = 0, frame = 0
+ 711              		@ frame_needed = 0, uses_anonymous_args = 0
+ 712              		.loc 1 217 46 is_stmt 0 view .LVU159
+ 713 0000 10B5     		push	{r4, lr}
+ 714              	.LCFI8:
+ 715              		.cfi_def_cfa_offset 8
+ 716              		.cfi_offset 4, -8
+ 717              		.cfi_offset 14, -4
+ 718 0002 0400     		movs	r4, r0
+ 218:libscpi/src/ieee488.c ****     SCPI_EventClear(context);
+ 719              		.loc 1 218 5 is_stmt 1 view .LVU160
+ 720 0004 FFF7FEFF 		bl	SCPI_EventClear
+ 721              	.LVL87:
+ 219:libscpi/src/ieee488.c ****     SCPI_ErrorClear(context);
+ 722              		.loc 1 219 5 view .LVU161
+ 723 0008 2000     		movs	r0, r4
+ 724 000a FFF7FEFF 		bl	SCPI_ErrorClear
+ 725              	.LVL88:
+ 220:libscpi/src/ieee488.c ****     SCPI_RegSet(context, SCPI_REG_OPER, 0);
+ 726              		.loc 1 220 5 view .LVU162
+ 727 000e 0022     		movs	r2, #0
+ 728 0010 0421     		movs	r1, #4
+ 729 0012 2000     		movs	r0, r4
+ 730 0014 FFF7FEFF 		bl	SCPI_RegSet
+ 731              	.LVL89:
+ 221:libscpi/src/ieee488.c ****     SCPI_RegSet(context, SCPI_REG_QUES, 0);
+ 732              		.loc 1 221 5 view .LVU163
+ 733 0018 0022     		movs	r2, #0
+ 734 001a 0721     		movs	r1, #7
+ 735 001c 2000     		movs	r0, r4
+ 736 001e FFF7FEFF 		bl	SCPI_RegSet
+ 737              	.LVL90:
+ 222:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 738              		.loc 1 222 5 view .LVU164
+ 223:libscpi/src/ieee488.c **** }
+ 739              		.loc 1 223 1 is_stmt 0 view .LVU165
+ 740 0022 0120     		movs	r0, #1
+ 741              		@ sp needed
+ 742              	.LVL91:
+ 743              		.loc 1 223 1 view .LVU166
+ 744 0024 10BD     		pop	{r4, pc}
+ 745              		.cfi_endproc
+ARM GAS  /tmp/ccarfPVd.s 			page 20
+
+
+ 746              	.LFE12:
+ 748              		.section	.text.SCPI_CoreEse,"ax",%progbits
+ 749              		.align	1
+ 750              		.global	SCPI_CoreEse
+ 751              		.syntax unified
+ 752              		.code	16
+ 753              		.thumb_func
+ 754              		.fpu softvfp
+ 756              	SCPI_CoreEse:
+ 757              	.LVL92:
+ 758              	.LFB13:
+ 224:libscpi/src/ieee488.c **** 
+ 225:libscpi/src/ieee488.c **** /**
+ 226:libscpi/src/ieee488.c ****  * *ESE
+ 227:libscpi/src/ieee488.c ****  * @param context
+ 228:libscpi/src/ieee488.c ****  * @return 
+ 229:libscpi/src/ieee488.c ****  */
+ 230:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreEse(scpi_t * context) {
+ 759              		.loc 1 230 46 is_stmt 1 view -0
+ 760              		.cfi_startproc
+ 761              		@ args = 0, pretend = 0, frame = 8
+ 762              		@ frame_needed = 0, uses_anonymous_args = 0
+ 763              		.loc 1 230 46 is_stmt 0 view .LVU168
+ 764 0000 10B5     		push	{r4, lr}
+ 765              	.LCFI9:
+ 766              		.cfi_def_cfa_offset 8
+ 767              		.cfi_offset 4, -8
+ 768              		.cfi_offset 14, -4
+ 769 0002 82B0     		sub	sp, sp, #8
+ 770              	.LCFI10:
+ 771              		.cfi_def_cfa_offset 16
+ 772 0004 0400     		movs	r4, r0
+ 231:libscpi/src/ieee488.c ****     int32_t new_ESE;
+ 773              		.loc 1 231 5 is_stmt 1 view .LVU169
+ 232:libscpi/src/ieee488.c ****     if (SCPI_ParamInt32(context, &new_ESE, TRUE)) {
+ 774              		.loc 1 232 5 view .LVU170
+ 775              		.loc 1 232 9 is_stmt 0 view .LVU171
+ 776 0006 0122     		movs	r2, #1
+ 777 0008 01A9     		add	r1, sp, #4
+ 778 000a FFF7FEFF 		bl	SCPI_ParamInt32
+ 779              	.LVL93:
+ 780              		.loc 1 232 8 view .LVU172
+ 781 000e 0028     		cmp	r0, #0
+ 782 0010 03D1     		bne	.L43
+ 233:libscpi/src/ieee488.c ****         SCPI_RegSet(context, SCPI_REG_ESE, (scpi_reg_val_t) new_ESE);
+ 234:libscpi/src/ieee488.c ****         return SCPI_RES_OK;
+ 235:libscpi/src/ieee488.c ****     }
+ 236:libscpi/src/ieee488.c ****     return SCPI_RES_ERR;
+ 783              		.loc 1 236 12 view .LVU173
+ 784 0012 0120     		movs	r0, #1
+ 785 0014 4042     		rsbs	r0, r0, #0
+ 786              	.L41:
+ 237:libscpi/src/ieee488.c **** }
+ 787              		.loc 1 237 1 view .LVU174
+ 788 0016 02B0     		add	sp, sp, #8
+ 789              		@ sp needed
+ 790              	.LVL94:
+ARM GAS  /tmp/ccarfPVd.s 			page 21
+
+
+ 791              		.loc 1 237 1 view .LVU175
+ 792 0018 10BD     		pop	{r4, pc}
+ 793              	.LVL95:
+ 794              	.L43:
+ 233:libscpi/src/ieee488.c ****         SCPI_RegSet(context, SCPI_REG_ESE, (scpi_reg_val_t) new_ESE);
+ 795              		.loc 1 233 9 is_stmt 1 view .LVU176
+ 796 001a 019B     		ldr	r3, [sp, #4]
+ 797 001c 9AB2     		uxth	r2, r3
+ 798 001e 0321     		movs	r1, #3
+ 799 0020 2000     		movs	r0, r4
+ 800 0022 FFF7FEFF 		bl	SCPI_RegSet
+ 801              	.LVL96:
+ 234:libscpi/src/ieee488.c ****     }
+ 802              		.loc 1 234 9 view .LVU177
+ 234:libscpi/src/ieee488.c ****     }
+ 803              		.loc 1 234 16 is_stmt 0 view .LVU178
+ 804 0026 0120     		movs	r0, #1
+ 805 0028 F5E7     		b	.L41
+ 806              		.cfi_endproc
+ 807              	.LFE13:
+ 809              		.section	.text.SCPI_CoreEseQ,"ax",%progbits
+ 810              		.align	1
+ 811              		.global	SCPI_CoreEseQ
+ 812              		.syntax unified
+ 813              		.code	16
+ 814              		.thumb_func
+ 815              		.fpu softvfp
+ 817              	SCPI_CoreEseQ:
+ 818              	.LVL97:
+ 819              	.LFB14:
+ 238:libscpi/src/ieee488.c **** 
+ 239:libscpi/src/ieee488.c **** /**
+ 240:libscpi/src/ieee488.c ****  * *ESE?
+ 241:libscpi/src/ieee488.c ****  * @param context
+ 242:libscpi/src/ieee488.c ****  * @return 
+ 243:libscpi/src/ieee488.c ****  */
+ 244:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreEseQ(scpi_t * context) {
+ 820              		.loc 1 244 47 is_stmt 1 view -0
+ 821              		.cfi_startproc
+ 822              		@ args = 0, pretend = 0, frame = 0
+ 823              		@ frame_needed = 0, uses_anonymous_args = 0
+ 824              		.loc 1 244 47 is_stmt 0 view .LVU180
+ 825 0000 10B5     		push	{r4, lr}
+ 826              	.LCFI11:
+ 827              		.cfi_def_cfa_offset 8
+ 828              		.cfi_offset 4, -8
+ 829              		.cfi_offset 14, -4
+ 830 0002 0400     		movs	r4, r0
+ 245:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_ESE));
+ 831              		.loc 1 245 5 is_stmt 1 view .LVU181
+ 832              		.loc 1 245 31 is_stmt 0 view .LVU182
+ 833 0004 0321     		movs	r1, #3
+ 834 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 835              	.LVL98:
+ 836              		.loc 1 245 31 view .LVU183
+ 837 000a 0100     		movs	r1, r0
+ 838              		.loc 1 245 5 view .LVU184
+ARM GAS  /tmp/ccarfPVd.s 			page 22
+
+
+ 839 000c 2000     		movs	r0, r4
+ 840 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 841              	.LVL99:
+ 246:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 842              		.loc 1 246 5 is_stmt 1 view .LVU185
+ 247:libscpi/src/ieee488.c **** }
+ 843              		.loc 1 247 1 is_stmt 0 view .LVU186
+ 844 0012 0120     		movs	r0, #1
+ 845              		@ sp needed
+ 846              	.LVL100:
+ 847              		.loc 1 247 1 view .LVU187
+ 848 0014 10BD     		pop	{r4, pc}
+ 849              		.cfi_endproc
+ 850              	.LFE14:
+ 852              		.section	.text.SCPI_CoreEsrQ,"ax",%progbits
+ 853              		.align	1
+ 854              		.global	SCPI_CoreEsrQ
+ 855              		.syntax unified
+ 856              		.code	16
+ 857              		.thumb_func
+ 858              		.fpu softvfp
+ 860              	SCPI_CoreEsrQ:
+ 861              	.LVL101:
+ 862              	.LFB15:
+ 248:libscpi/src/ieee488.c **** 
+ 249:libscpi/src/ieee488.c **** /**
+ 250:libscpi/src/ieee488.c ****  * *ESR?
+ 251:libscpi/src/ieee488.c ****  * @param context
+ 252:libscpi/src/ieee488.c ****  * @return 
+ 253:libscpi/src/ieee488.c ****  */
+ 254:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreEsrQ(scpi_t * context) {
+ 863              		.loc 1 254 47 is_stmt 1 view -0
+ 864              		.cfi_startproc
+ 865              		@ args = 0, pretend = 0, frame = 0
+ 866              		@ frame_needed = 0, uses_anonymous_args = 0
+ 867              		.loc 1 254 47 is_stmt 0 view .LVU189
+ 868 0000 10B5     		push	{r4, lr}
+ 869              	.LCFI12:
+ 870              		.cfi_def_cfa_offset 8
+ 871              		.cfi_offset 4, -8
+ 872              		.cfi_offset 14, -4
+ 873 0002 0400     		movs	r4, r0
+ 255:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_ESR));
+ 874              		.loc 1 255 5 is_stmt 1 view .LVU190
+ 875              		.loc 1 255 31 is_stmt 0 view .LVU191
+ 876 0004 0221     		movs	r1, #2
+ 877 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 878              	.LVL102:
+ 879              		.loc 1 255 31 view .LVU192
+ 880 000a 0100     		movs	r1, r0
+ 881              		.loc 1 255 5 view .LVU193
+ 882 000c 2000     		movs	r0, r4
+ 883 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 884              	.LVL103:
+ 256:libscpi/src/ieee488.c ****     SCPI_RegSet(context, SCPI_REG_ESR, 0);
+ 885              		.loc 1 256 5 is_stmt 1 view .LVU194
+ 886 0012 0022     		movs	r2, #0
+ARM GAS  /tmp/ccarfPVd.s 			page 23
+
+
+ 887 0014 0221     		movs	r1, #2
+ 888 0016 2000     		movs	r0, r4
+ 889 0018 FFF7FEFF 		bl	SCPI_RegSet
+ 890              	.LVL104:
+ 257:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 891              		.loc 1 257 5 view .LVU195
+ 258:libscpi/src/ieee488.c **** }
+ 892              		.loc 1 258 1 is_stmt 0 view .LVU196
+ 893 001c 0120     		movs	r0, #1
+ 894              		@ sp needed
+ 895              	.LVL105:
+ 896              		.loc 1 258 1 view .LVU197
+ 897 001e 10BD     		pop	{r4, pc}
+ 898              		.cfi_endproc
+ 899              	.LFE15:
+ 901              		.section	.rodata.SCPI_CoreIdnQ.str1.4,"aMS",%progbits,1
+ 902              		.align	2
+ 903              	.LC1:
+ 904 0000 3000     		.ascii	"0\000"
+ 905              		.section	.text.SCPI_CoreIdnQ,"ax",%progbits
+ 906              		.align	1
+ 907              		.global	SCPI_CoreIdnQ
+ 908              		.syntax unified
+ 909              		.code	16
+ 910              		.thumb_func
+ 911              		.fpu softvfp
+ 913              	SCPI_CoreIdnQ:
+ 914              	.LVL106:
+ 915              	.LFB16:
+ 259:libscpi/src/ieee488.c **** 
+ 260:libscpi/src/ieee488.c **** /**
+ 261:libscpi/src/ieee488.c ****  * *IDN?
+ 262:libscpi/src/ieee488.c ****  * 
+ 263:libscpi/src/ieee488.c ****  * field1: MANUFACTURE
+ 264:libscpi/src/ieee488.c ****  * field2: MODEL
+ 265:libscpi/src/ieee488.c ****  * field4: SUBSYSTEMS REVISIONS
+ 266:libscpi/src/ieee488.c ****  * 
+ 267:libscpi/src/ieee488.c ****  * example: MANUFACTURE,MODEL,0,01-02-01
+ 268:libscpi/src/ieee488.c ****  * @param context
+ 269:libscpi/src/ieee488.c ****  * @return 
+ 270:libscpi/src/ieee488.c ****  */
+ 271:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreIdnQ(scpi_t * context) {
+ 916              		.loc 1 271 47 is_stmt 1 view -0
+ 917              		.cfi_startproc
+ 918              		@ args = 0, pretend = 0, frame = 0
+ 919              		@ frame_needed = 0, uses_anonymous_args = 0
+ 920              		.loc 1 271 47 is_stmt 0 view .LVU199
+ 921 0000 70B5     		push	{r4, r5, r6, lr}
+ 922              	.LCFI13:
+ 923              		.cfi_def_cfa_offset 16
+ 924              		.cfi_offset 4, -16
+ 925              		.cfi_offset 5, -12
+ 926              		.cfi_offset 6, -8
+ 927              		.cfi_offset 14, -4
+ 928 0002 0600     		movs	r6, r0
+ 272:libscpi/src/ieee488.c ****     int i;
+ 929              		.loc 1 272 5 is_stmt 1 view .LVU200
+ARM GAS  /tmp/ccarfPVd.s 			page 24
+
+
+ 273:libscpi/src/ieee488.c ****     for (i = 0; i < 4; i++) {
+ 930              		.loc 1 273 5 view .LVU201
+ 931              	.LVL107:
+ 932              		.loc 1 273 12 is_stmt 0 view .LVU202
+ 933 0004 0024     		movs	r4, #0
+ 934              		.loc 1 273 5 view .LVU203
+ 935 0006 05E0     		b	.L47
+ 936              	.LVL108:
+ 937              	.L48:
+ 274:libscpi/src/ieee488.c ****         if (context->idn[i]) {
+ 275:libscpi/src/ieee488.c ****             SCPI_ResultMnemonic(context, context->idn[i]);
+ 276:libscpi/src/ieee488.c ****         } else {
+ 277:libscpi/src/ieee488.c ****             SCPI_ResultMnemonic(context, "0");
+ 938              		.loc 1 277 13 is_stmt 1 view .LVU204
+ 939 0008 0122     		movs	r2, #1
+ 940 000a 0C49     		ldr	r1, .L52
+ 941 000c 3000     		movs	r0, r6
+ 942 000e FFF7FEFF 		bl	SCPI_ResultCharacters
+ 943              	.LVL109:
+ 944              	.L49:
+ 273:libscpi/src/ieee488.c ****     for (i = 0; i < 4; i++) {
+ 945              		.loc 1 273 24 discriminator 2 view .LVU205
+ 273:libscpi/src/ieee488.c ****     for (i = 0; i < 4; i++) {
+ 946              		.loc 1 273 25 is_stmt 0 discriminator 2 view .LVU206
+ 947 0012 0134     		adds	r4, r4, #1
+ 948              	.LVL110:
+ 949              	.L47:
+ 273:libscpi/src/ieee488.c ****     for (i = 0; i < 4; i++) {
+ 950              		.loc 1 273 17 is_stmt 1 discriminator 1 view .LVU207
+ 273:libscpi/src/ieee488.c ****     for (i = 0; i < 4; i++) {
+ 951              		.loc 1 273 5 is_stmt 0 discriminator 1 view .LVU208
+ 952 0014 032C     		cmp	r4, #3
+ 953 0016 0FDC     		bgt	.L51
+ 274:libscpi/src/ieee488.c ****         if (context->idn[i]) {
+ 954              		.loc 1 274 9 is_stmt 1 view .LVU209
+ 274:libscpi/src/ieee488.c ****         if (context->idn[i]) {
+ 955              		.loc 1 274 25 is_stmt 0 view .LVU210
+ 956 0018 2300     		movs	r3, r4
+ 957 001a 2033     		adds	r3, r3, #32
+ 958 001c 9B00     		lsls	r3, r3, #2
+ 959 001e F318     		adds	r3, r6, r3
+ 960 0020 5D68     		ldr	r5, [r3, #4]
+ 274:libscpi/src/ieee488.c ****         if (context->idn[i]) {
+ 961              		.loc 1 274 12 view .LVU211
+ 962 0022 002D     		cmp	r5, #0
+ 963 0024 F0D0     		beq	.L48
+ 275:libscpi/src/ieee488.c ****         } else {
+ 964              		.loc 1 275 13 is_stmt 1 view .LVU212
+ 965 0026 2800     		movs	r0, r5
+ 966 0028 FFF7FEFF 		bl	strlen
+ 967              	.LVL111:
+ 968 002c 0200     		movs	r2, r0
+ 969 002e 2900     		movs	r1, r5
+ 970 0030 3000     		movs	r0, r6
+ 971 0032 FFF7FEFF 		bl	SCPI_ResultCharacters
+ 972              	.LVL112:
+ 973 0036 ECE7     		b	.L49
+ARM GAS  /tmp/ccarfPVd.s 			page 25
+
+
+ 974              	.L51:
+ 278:libscpi/src/ieee488.c ****         }
+ 279:libscpi/src/ieee488.c ****     }
+ 280:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 975              		.loc 1 280 5 view .LVU213
+ 281:libscpi/src/ieee488.c **** }
+ 976              		.loc 1 281 1 is_stmt 0 view .LVU214
+ 977 0038 0120     		movs	r0, #1
+ 978              		@ sp needed
+ 979              	.LVL113:
+ 980              	.LVL114:
+ 981              		.loc 1 281 1 view .LVU215
+ 982 003a 70BD     		pop	{r4, r5, r6, pc}
+ 983              	.L53:
+ 984              		.align	2
+ 985              	.L52:
+ 986 003c 00000000 		.word	.LC1
+ 987              		.cfi_endproc
+ 988              	.LFE16:
+ 990              		.section	.text.SCPI_CoreOpc,"ax",%progbits
+ 991              		.align	1
+ 992              		.global	SCPI_CoreOpc
+ 993              		.syntax unified
+ 994              		.code	16
+ 995              		.thumb_func
+ 996              		.fpu softvfp
+ 998              	SCPI_CoreOpc:
+ 999              	.LVL115:
+ 1000              	.LFB17:
+ 282:libscpi/src/ieee488.c **** 
+ 283:libscpi/src/ieee488.c **** /**
+ 284:libscpi/src/ieee488.c ****  * *OPC
+ 285:libscpi/src/ieee488.c ****  * @param context
+ 286:libscpi/src/ieee488.c ****  * @return 
+ 287:libscpi/src/ieee488.c ****  */
+ 288:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreOpc(scpi_t * context) {
+ 1001              		.loc 1 288 46 is_stmt 1 view -0
+ 1002              		.cfi_startproc
+ 1003              		@ args = 0, pretend = 0, frame = 0
+ 1004              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1005              		.loc 1 288 46 is_stmt 0 view .LVU217
+ 1006 0000 10B5     		push	{r4, lr}
+ 1007              	.LCFI14:
+ 1008              		.cfi_def_cfa_offset 8
+ 1009              		.cfi_offset 4, -8
+ 1010              		.cfi_offset 14, -4
+ 289:libscpi/src/ieee488.c ****     SCPI_RegSetBits(context, SCPI_REG_ESR, ESR_OPC);
+ 1011              		.loc 1 289 5 is_stmt 1 view .LVU218
+ 1012 0002 0122     		movs	r2, #1
+ 1013 0004 0221     		movs	r1, #2
+ 1014 0006 FFF7FEFF 		bl	SCPI_RegSetBits
+ 1015              	.LVL116:
+ 290:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1016              		.loc 1 290 5 view .LVU219
+ 291:libscpi/src/ieee488.c **** }
+ 1017              		.loc 1 291 1 is_stmt 0 view .LVU220
+ 1018 000a 0120     		movs	r0, #1
+ARM GAS  /tmp/ccarfPVd.s 			page 26
+
+
+ 1019              		@ sp needed
+ 1020 000c 10BD     		pop	{r4, pc}
+ 1021              		.cfi_endproc
+ 1022              	.LFE17:
+ 1024              		.section	.text.SCPI_CoreOpcQ,"ax",%progbits
+ 1025              		.align	1
+ 1026              		.global	SCPI_CoreOpcQ
+ 1027              		.syntax unified
+ 1028              		.code	16
+ 1029              		.thumb_func
+ 1030              		.fpu softvfp
+ 1032              	SCPI_CoreOpcQ:
+ 1033              	.LVL117:
+ 1034              	.LFB18:
+ 292:libscpi/src/ieee488.c **** 
+ 293:libscpi/src/ieee488.c **** /**
+ 294:libscpi/src/ieee488.c ****  * *OPC?
+ 295:libscpi/src/ieee488.c ****  * @param context
+ 296:libscpi/src/ieee488.c ****  * @return 
+ 297:libscpi/src/ieee488.c ****  */
+ 298:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreOpcQ(scpi_t * context) {
+ 1035              		.loc 1 298 47 is_stmt 1 view -0
+ 1036              		.cfi_startproc
+ 1037              		@ args = 0, pretend = 0, frame = 0
+ 1038              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1039              		.loc 1 298 47 is_stmt 0 view .LVU222
+ 1040 0000 10B5     		push	{r4, lr}
+ 1041              	.LCFI15:
+ 1042              		.cfi_def_cfa_offset 8
+ 1043              		.cfi_offset 4, -8
+ 1044              		.cfi_offset 14, -4
+ 299:libscpi/src/ieee488.c ****     /* Operation is always completed */
+ 300:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, 1);
+ 1045              		.loc 1 300 5 is_stmt 1 view .LVU223
+ 1046 0002 0121     		movs	r1, #1
+ 1047 0004 FFF7FEFF 		bl	SCPI_ResultInt32
+ 1048              	.LVL118:
+ 301:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1049              		.loc 1 301 5 view .LVU224
+ 302:libscpi/src/ieee488.c **** }
+ 1050              		.loc 1 302 1 is_stmt 0 view .LVU225
+ 1051 0008 0120     		movs	r0, #1
+ 1052              		@ sp needed
+ 1053 000a 10BD     		pop	{r4, pc}
+ 1054              		.cfi_endproc
+ 1055              	.LFE18:
+ 1057              		.section	.text.SCPI_CoreRst,"ax",%progbits
+ 1058              		.align	1
+ 1059              		.global	SCPI_CoreRst
+ 1060              		.syntax unified
+ 1061              		.code	16
+ 1062              		.thumb_func
+ 1063              		.fpu softvfp
+ 1065              	SCPI_CoreRst:
+ 1066              	.LVL119:
+ 1067              	.LFB19:
+ 303:libscpi/src/ieee488.c **** 
+ARM GAS  /tmp/ccarfPVd.s 			page 27
+
+
+ 304:libscpi/src/ieee488.c **** /**
+ 305:libscpi/src/ieee488.c ****  * *RST
+ 306:libscpi/src/ieee488.c ****  * @param context
+ 307:libscpi/src/ieee488.c ****  * @return 
+ 308:libscpi/src/ieee488.c ****  */
+ 309:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreRst(scpi_t * context) {
+ 1068              		.loc 1 309 46 is_stmt 1 view -0
+ 1069              		.cfi_startproc
+ 1070              		@ args = 0, pretend = 0, frame = 0
+ 1071              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1072              		.loc 1 309 46 is_stmt 0 view .LVU227
+ 1073 0000 10B5     		push	{r4, lr}
+ 1074              	.LCFI16:
+ 1075              		.cfi_def_cfa_offset 8
+ 1076              		.cfi_offset 4, -8
+ 1077              		.cfi_offset 14, -4
+ 310:libscpi/src/ieee488.c ****     if (context && context->interface && context->interface->reset) {
+ 1078              		.loc 1 310 5 is_stmt 1 view .LVU228
+ 1079              		.loc 1 310 8 is_stmt 0 view .LVU229
+ 1080 0002 0028     		cmp	r0, #0
+ 1081 0004 07D0     		beq	.L58
+ 1082              		.loc 1 310 27 discriminator 1 view .LVU230
+ 1083 0006 C36A     		ldr	r3, [r0, #44]
+ 1084              		.loc 1 310 17 discriminator 1 view .LVU231
+ 1085 0008 002B     		cmp	r3, #0
+ 1086 000a 06D0     		beq	.L59
+ 1087              		.loc 1 310 60 discriminator 2 view .LVU232
+ 1088 000c 1B69     		ldr	r3, [r3, #16]
+ 1089              		.loc 1 310 39 discriminator 2 view .LVU233
+ 1090 000e 002B     		cmp	r3, #0
+ 1091 0010 05D0     		beq	.L60
+ 311:libscpi/src/ieee488.c ****         return context->interface->reset(context);
+ 1092              		.loc 1 311 9 is_stmt 1 view .LVU234
+ 1093              		.loc 1 311 16 is_stmt 0 view .LVU235
+ 1094 0012 9847     		blx	r3
+ 1095              	.LVL120:
+ 1096              		.loc 1 311 16 view .LVU236
+ 1097 0014 00E0     		b	.L57
+ 1098              	.LVL121:
+ 1099              	.L58:
+ 312:libscpi/src/ieee488.c ****     }
+ 313:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1100              		.loc 1 313 12 view .LVU237
+ 1101 0016 0120     		movs	r0, #1
+ 1102              	.LVL122:
+ 1103              	.L57:
+ 314:libscpi/src/ieee488.c **** }
+ 1104              		.loc 1 314 1 view .LVU238
+ 1105              		@ sp needed
+ 1106 0018 10BD     		pop	{r4, pc}
+ 1107              	.LVL123:
+ 1108              	.L59:
+ 313:libscpi/src/ieee488.c **** }
+ 1109              		.loc 1 313 12 view .LVU239
+ 1110 001a 0120     		movs	r0, #1
+ 1111              	.LVL124:
+ 313:libscpi/src/ieee488.c **** }
+ARM GAS  /tmp/ccarfPVd.s 			page 28
+
+
+ 1112              		.loc 1 313 12 view .LVU240
+ 1113 001c FCE7     		b	.L57
+ 1114              	.LVL125:
+ 1115              	.L60:
+ 313:libscpi/src/ieee488.c **** }
+ 1116              		.loc 1 313 12 view .LVU241
+ 1117 001e 0120     		movs	r0, #1
+ 1118              	.LVL126:
+ 313:libscpi/src/ieee488.c **** }
+ 1119              		.loc 1 313 12 view .LVU242
+ 1120 0020 FAE7     		b	.L57
+ 1121              		.cfi_endproc
+ 1122              	.LFE19:
+ 1124              		.section	.text.SCPI_CoreSre,"ax",%progbits
+ 1125              		.align	1
+ 1126              		.global	SCPI_CoreSre
+ 1127              		.syntax unified
+ 1128              		.code	16
+ 1129              		.thumb_func
+ 1130              		.fpu softvfp
+ 1132              	SCPI_CoreSre:
+ 1133              	.LVL127:
+ 1134              	.LFB20:
+ 315:libscpi/src/ieee488.c **** 
+ 316:libscpi/src/ieee488.c **** /**
+ 317:libscpi/src/ieee488.c ****  * *SRE
+ 318:libscpi/src/ieee488.c ****  * @param context
+ 319:libscpi/src/ieee488.c ****  * @return 
+ 320:libscpi/src/ieee488.c ****  */
+ 321:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreSre(scpi_t * context) {
+ 1135              		.loc 1 321 46 is_stmt 1 view -0
+ 1136              		.cfi_startproc
+ 1137              		@ args = 0, pretend = 0, frame = 8
+ 1138              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1139              		.loc 1 321 46 is_stmt 0 view .LVU244
+ 1140 0000 10B5     		push	{r4, lr}
+ 1141              	.LCFI17:
+ 1142              		.cfi_def_cfa_offset 8
+ 1143              		.cfi_offset 4, -8
+ 1144              		.cfi_offset 14, -4
+ 1145 0002 82B0     		sub	sp, sp, #8
+ 1146              	.LCFI18:
+ 1147              		.cfi_def_cfa_offset 16
+ 1148 0004 0400     		movs	r4, r0
+ 322:libscpi/src/ieee488.c ****     int32_t new_SRE;
+ 1149              		.loc 1 322 5 is_stmt 1 view .LVU245
+ 323:libscpi/src/ieee488.c ****     if (SCPI_ParamInt32(context, &new_SRE, TRUE)) {
+ 1150              		.loc 1 323 5 view .LVU246
+ 1151              		.loc 1 323 9 is_stmt 0 view .LVU247
+ 1152 0006 0122     		movs	r2, #1
+ 1153 0008 01A9     		add	r1, sp, #4
+ 1154 000a FFF7FEFF 		bl	SCPI_ParamInt32
+ 1155              	.LVL128:
+ 1156              		.loc 1 323 8 view .LVU248
+ 1157 000e 0028     		cmp	r0, #0
+ 1158 0010 03D1     		bne	.L64
+ 324:libscpi/src/ieee488.c ****         SCPI_RegSet(context, SCPI_REG_SRE, (scpi_reg_val_t) new_SRE);
+ARM GAS  /tmp/ccarfPVd.s 			page 29
+
+
+ 325:libscpi/src/ieee488.c ****         return SCPI_RES_OK;
+ 326:libscpi/src/ieee488.c ****     }
+ 327:libscpi/src/ieee488.c ****     return SCPI_RES_ERR;
+ 1159              		.loc 1 327 12 view .LVU249
+ 1160 0012 0120     		movs	r0, #1
+ 1161 0014 4042     		rsbs	r0, r0, #0
+ 1162              	.L62:
+ 328:libscpi/src/ieee488.c **** }
+ 1163              		.loc 1 328 1 view .LVU250
+ 1164 0016 02B0     		add	sp, sp, #8
+ 1165              		@ sp needed
+ 1166              	.LVL129:
+ 1167              		.loc 1 328 1 view .LVU251
+ 1168 0018 10BD     		pop	{r4, pc}
+ 1169              	.LVL130:
+ 1170              	.L64:
+ 324:libscpi/src/ieee488.c ****         SCPI_RegSet(context, SCPI_REG_SRE, (scpi_reg_val_t) new_SRE);
+ 1171              		.loc 1 324 9 is_stmt 1 view .LVU252
+ 1172 001a 019B     		ldr	r3, [sp, #4]
+ 1173 001c 9AB2     		uxth	r2, r3
+ 1174 001e 0121     		movs	r1, #1
+ 1175 0020 2000     		movs	r0, r4
+ 1176 0022 FFF7FEFF 		bl	SCPI_RegSet
+ 1177              	.LVL131:
+ 325:libscpi/src/ieee488.c ****     }
+ 1178              		.loc 1 325 9 view .LVU253
+ 325:libscpi/src/ieee488.c ****     }
+ 1179              		.loc 1 325 16 is_stmt 0 view .LVU254
+ 1180 0026 0120     		movs	r0, #1
+ 1181 0028 F5E7     		b	.L62
+ 1182              		.cfi_endproc
+ 1183              	.LFE20:
+ 1185              		.section	.text.SCPI_CoreSreQ,"ax",%progbits
+ 1186              		.align	1
+ 1187              		.global	SCPI_CoreSreQ
+ 1188              		.syntax unified
+ 1189              		.code	16
+ 1190              		.thumb_func
+ 1191              		.fpu softvfp
+ 1193              	SCPI_CoreSreQ:
+ 1194              	.LVL132:
+ 1195              	.LFB21:
+ 329:libscpi/src/ieee488.c **** 
+ 330:libscpi/src/ieee488.c **** /**
+ 331:libscpi/src/ieee488.c ****  * *SRE?
+ 332:libscpi/src/ieee488.c ****  * @param context
+ 333:libscpi/src/ieee488.c ****  * @return 
+ 334:libscpi/src/ieee488.c ****  */
+ 335:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreSreQ(scpi_t * context) {
+ 1196              		.loc 1 335 47 is_stmt 1 view -0
+ 1197              		.cfi_startproc
+ 1198              		@ args = 0, pretend = 0, frame = 0
+ 1199              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1200              		.loc 1 335 47 is_stmt 0 view .LVU256
+ 1201 0000 10B5     		push	{r4, lr}
+ 1202              	.LCFI19:
+ 1203              		.cfi_def_cfa_offset 8
+ARM GAS  /tmp/ccarfPVd.s 			page 30
+
+
+ 1204              		.cfi_offset 4, -8
+ 1205              		.cfi_offset 14, -4
+ 1206 0002 0400     		movs	r4, r0
+ 336:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_SRE));
+ 1207              		.loc 1 336 5 is_stmt 1 view .LVU257
+ 1208              		.loc 1 336 31 is_stmt 0 view .LVU258
+ 1209 0004 0121     		movs	r1, #1
+ 1210 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 1211              	.LVL133:
+ 1212              		.loc 1 336 31 view .LVU259
+ 1213 000a 0100     		movs	r1, r0
+ 1214              		.loc 1 336 5 view .LVU260
+ 1215 000c 2000     		movs	r0, r4
+ 1216 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 1217              	.LVL134:
+ 337:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1218              		.loc 1 337 5 is_stmt 1 view .LVU261
+ 338:libscpi/src/ieee488.c **** }
+ 1219              		.loc 1 338 1 is_stmt 0 view .LVU262
+ 1220 0012 0120     		movs	r0, #1
+ 1221              		@ sp needed
+ 1222              	.LVL135:
+ 1223              		.loc 1 338 1 view .LVU263
+ 1224 0014 10BD     		pop	{r4, pc}
+ 1225              		.cfi_endproc
+ 1226              	.LFE21:
+ 1228              		.section	.text.SCPI_CoreStbQ,"ax",%progbits
+ 1229              		.align	1
+ 1230              		.global	SCPI_CoreStbQ
+ 1231              		.syntax unified
+ 1232              		.code	16
+ 1233              		.thumb_func
+ 1234              		.fpu softvfp
+ 1236              	SCPI_CoreStbQ:
+ 1237              	.LVL136:
+ 1238              	.LFB22:
+ 339:libscpi/src/ieee488.c **** 
+ 340:libscpi/src/ieee488.c **** /**
+ 341:libscpi/src/ieee488.c ****  * *STB?
+ 342:libscpi/src/ieee488.c ****  * @param context
+ 343:libscpi/src/ieee488.c ****  * @return 
+ 344:libscpi/src/ieee488.c ****  */
+ 345:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreStbQ(scpi_t * context) {
+ 1239              		.loc 1 345 47 is_stmt 1 view -0
+ 1240              		.cfi_startproc
+ 1241              		@ args = 0, pretend = 0, frame = 0
+ 1242              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1243              		.loc 1 345 47 is_stmt 0 view .LVU265
+ 1244 0000 10B5     		push	{r4, lr}
+ 1245              	.LCFI20:
+ 1246              		.cfi_def_cfa_offset 8
+ 1247              		.cfi_offset 4, -8
+ 1248              		.cfi_offset 14, -4
+ 1249 0002 0400     		movs	r4, r0
+ 346:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, SCPI_RegGet(context, SCPI_REG_STB));
+ 1250              		.loc 1 346 5 is_stmt 1 view .LVU266
+ 1251              		.loc 1 346 31 is_stmt 0 view .LVU267
+ARM GAS  /tmp/ccarfPVd.s 			page 31
+
+
+ 1252 0004 0021     		movs	r1, #0
+ 1253 0006 FFF7FEFF 		bl	SCPI_RegGet
+ 1254              	.LVL137:
+ 1255              		.loc 1 346 31 view .LVU268
+ 1256 000a 0100     		movs	r1, r0
+ 1257              		.loc 1 346 5 view .LVU269
+ 1258 000c 2000     		movs	r0, r4
+ 1259 000e FFF7FEFF 		bl	SCPI_ResultInt32
+ 1260              	.LVL138:
+ 347:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1261              		.loc 1 347 5 is_stmt 1 view .LVU270
+ 348:libscpi/src/ieee488.c **** }
+ 1262              		.loc 1 348 1 is_stmt 0 view .LVU271
+ 1263 0012 0120     		movs	r0, #1
+ 1264              		@ sp needed
+ 1265              	.LVL139:
+ 1266              		.loc 1 348 1 view .LVU272
+ 1267 0014 10BD     		pop	{r4, pc}
+ 1268              		.cfi_endproc
+ 1269              	.LFE22:
+ 1271              		.section	.text.SCPI_CoreTstQ,"ax",%progbits
+ 1272              		.align	1
+ 1273              		.global	SCPI_CoreTstQ
+ 1274              		.syntax unified
+ 1275              		.code	16
+ 1276              		.thumb_func
+ 1277              		.fpu softvfp
+ 1279              	SCPI_CoreTstQ:
+ 1280              	.LVL140:
+ 1281              	.LFB23:
+ 349:libscpi/src/ieee488.c **** 
+ 350:libscpi/src/ieee488.c **** /**
+ 351:libscpi/src/ieee488.c ****  * *TST?
+ 352:libscpi/src/ieee488.c ****  * @param context
+ 353:libscpi/src/ieee488.c ****  * @return 
+ 354:libscpi/src/ieee488.c ****  */
+ 355:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreTstQ(scpi_t * context) {
+ 1282              		.loc 1 355 47 is_stmt 1 view -0
+ 1283              		.cfi_startproc
+ 1284              		@ args = 0, pretend = 0, frame = 0
+ 1285              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1286              		.loc 1 355 47 is_stmt 0 view .LVU274
+ 1287 0000 10B5     		push	{r4, lr}
+ 1288              	.LCFI21:
+ 1289              		.cfi_def_cfa_offset 8
+ 1290              		.cfi_offset 4, -8
+ 1291              		.cfi_offset 14, -4
+ 356:libscpi/src/ieee488.c ****     (void) context;
+ 1292              		.loc 1 356 5 is_stmt 1 view .LVU275
+ 357:libscpi/src/ieee488.c ****     SCPI_ResultInt32(context, 0);
+ 1293              		.loc 1 357 5 view .LVU276
+ 1294 0002 0021     		movs	r1, #0
+ 1295 0004 FFF7FEFF 		bl	SCPI_ResultInt32
+ 1296              	.LVL141:
+ 358:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1297              		.loc 1 358 5 view .LVU277
+ 359:libscpi/src/ieee488.c **** }
+ARM GAS  /tmp/ccarfPVd.s 			page 32
+
+
+ 1298              		.loc 1 359 1 is_stmt 0 view .LVU278
+ 1299 0008 0120     		movs	r0, #1
+ 1300              		@ sp needed
+ 1301 000a 10BD     		pop	{r4, pc}
+ 1302              		.cfi_endproc
+ 1303              	.LFE23:
+ 1305              		.section	.text.SCPI_CoreWai,"ax",%progbits
+ 1306              		.align	1
+ 1307              		.global	SCPI_CoreWai
+ 1308              		.syntax unified
+ 1309              		.code	16
+ 1310              		.thumb_func
+ 1311              		.fpu softvfp
+ 1313              	SCPI_CoreWai:
+ 1314              	.LVL142:
+ 1315              	.LFB24:
+ 360:libscpi/src/ieee488.c **** 
+ 361:libscpi/src/ieee488.c **** /**
+ 362:libscpi/src/ieee488.c ****  * *WAI
+ 363:libscpi/src/ieee488.c ****  * @param context
+ 364:libscpi/src/ieee488.c ****  * @return 
+ 365:libscpi/src/ieee488.c ****  */
+ 366:libscpi/src/ieee488.c **** scpi_result_t SCPI_CoreWai(scpi_t * context) {
+ 1316              		.loc 1 366 46 is_stmt 1 view -0
+ 1317              		.cfi_startproc
+ 1318              		@ args = 0, pretend = 0, frame = 0
+ 1319              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1320              		@ link register save eliminated.
+ 367:libscpi/src/ieee488.c ****     (void) context;
+ 1321              		.loc 1 367 5 view .LVU280
+ 368:libscpi/src/ieee488.c ****     /* NOP */
+ 369:libscpi/src/ieee488.c ****     return SCPI_RES_OK;
+ 1322              		.loc 1 369 5 view .LVU281
+ 370:libscpi/src/ieee488.c **** }
+ 1323              		.loc 1 370 1 is_stmt 0 view .LVU282
+ 1324 0000 0120     		movs	r0, #1
+ 1325              	.LVL143:
+ 1326              		.loc 1 370 1 view .LVU283
+ 1327              		@ sp needed
+ 1328 0002 7047     		bx	lr
+ 1329              		.cfi_endproc
+ 1330              	.LFE24:
+ 1332              		.text
+ 1333              	.Letext0:
+ 1334              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1335              		.file 3 "/usr/include/newlib/sys/_types.h"
+ 1336              		.file 4 "/usr/include/newlib/sys/reent.h"
+ 1337              		.file 5 "/usr/include/newlib/sys/lock.h"
+ 1338              		.file 6 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 1339              		.file 7 "libscpi/inc/scpi/types.h"
+ 1340              		.file 8 "libscpi/inc/scpi/parser.h"
+ 1341              		.file 9 "/usr/include/newlib/string.h"
+ 1342              		.file 10 "libscpi/inc/scpi/error.h"
+ARM GAS  /tmp/ccarfPVd.s 			page 33
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 ieee488.c
+     /tmp/ccarfPVd.s:16     .text.writeControl:0000000000000000 $t
+     /tmp/ccarfPVd.s:23     .text.writeControl:0000000000000000 writeControl
+     /tmp/ccarfPVd.s:84     .text.SCPI_RegGet:0000000000000000 $t
+     /tmp/ccarfPVd.s:91     .text.SCPI_RegGet:0000000000000000 SCPI_RegGet
+     /tmp/ccarfPVd.s:136    .text.SCPI_RegClearBits:0000000000000000 $t
+     /tmp/ccarfPVd.s:143    .text.SCPI_RegClearBits:0000000000000000 SCPI_RegClearBits
+     /tmp/ccarfPVd.s:251    .text.SCPI_RegSet:0000000000000000 SCPI_RegSet
+     /tmp/ccarfPVd.s:184    .text.regUpdateSTB:0000000000000000 $t
+     /tmp/ccarfPVd.s:190    .text.regUpdateSTB:0000000000000000 regUpdateSTB
+     /tmp/ccarfPVd.s:627    .text.SCPI_RegSetBits:0000000000000000 SCPI_RegSetBits
+     /tmp/ccarfPVd.s:244    .text.SCPI_RegSet:0000000000000000 $t
+     /tmp/ccarfPVd.s:302    .rodata.SCPI_RegSet:0000000000000000 $d
+     /tmp/ccarfPVd.s:535    .text.regUpdate:0000000000000000 regUpdate
+     /tmp/ccarfPVd.s:576    .text.regUpdateEvent:0000000000000000 regUpdateEvent
+     /tmp/ccarfPVd.s:524    .text.SCPI_RegSet:00000000000000e0 $d
+     /tmp/ccarfPVd.s:529    .text.regUpdate:0000000000000000 $t
+     /tmp/ccarfPVd.s:570    .text.regUpdateEvent:0000000000000000 $t
+     /tmp/ccarfPVd.s:620    .text.SCPI_RegSetBits:0000000000000000 $t
+     /tmp/ccarfPVd.s:666    .text.SCPI_EventClear:0000000000000000 $t
+     /tmp/ccarfPVd.s:673    .text.SCPI_EventClear:0000000000000000 SCPI_EventClear
+     /tmp/ccarfPVd.s:698    .text.SCPI_CoreCls:0000000000000000 $t
+     /tmp/ccarfPVd.s:705    .text.SCPI_CoreCls:0000000000000000 SCPI_CoreCls
+     /tmp/ccarfPVd.s:749    .text.SCPI_CoreEse:0000000000000000 $t
+     /tmp/ccarfPVd.s:756    .text.SCPI_CoreEse:0000000000000000 SCPI_CoreEse
+     /tmp/ccarfPVd.s:810    .text.SCPI_CoreEseQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:817    .text.SCPI_CoreEseQ:0000000000000000 SCPI_CoreEseQ
+     /tmp/ccarfPVd.s:853    .text.SCPI_CoreEsrQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:860    .text.SCPI_CoreEsrQ:0000000000000000 SCPI_CoreEsrQ
+     /tmp/ccarfPVd.s:902    .rodata.SCPI_CoreIdnQ.str1.4:0000000000000000 $d
+     /tmp/ccarfPVd.s:906    .text.SCPI_CoreIdnQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:913    .text.SCPI_CoreIdnQ:0000000000000000 SCPI_CoreIdnQ
+     /tmp/ccarfPVd.s:986    .text.SCPI_CoreIdnQ:000000000000003c $d
+     /tmp/ccarfPVd.s:991    .text.SCPI_CoreOpc:0000000000000000 $t
+     /tmp/ccarfPVd.s:998    .text.SCPI_CoreOpc:0000000000000000 SCPI_CoreOpc
+     /tmp/ccarfPVd.s:1025   .text.SCPI_CoreOpcQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:1032   .text.SCPI_CoreOpcQ:0000000000000000 SCPI_CoreOpcQ
+     /tmp/ccarfPVd.s:1058   .text.SCPI_CoreRst:0000000000000000 $t
+     /tmp/ccarfPVd.s:1065   .text.SCPI_CoreRst:0000000000000000 SCPI_CoreRst
+     /tmp/ccarfPVd.s:1125   .text.SCPI_CoreSre:0000000000000000 $t
+     /tmp/ccarfPVd.s:1132   .text.SCPI_CoreSre:0000000000000000 SCPI_CoreSre
+     /tmp/ccarfPVd.s:1186   .text.SCPI_CoreSreQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:1193   .text.SCPI_CoreSreQ:0000000000000000 SCPI_CoreSreQ
+     /tmp/ccarfPVd.s:1229   .text.SCPI_CoreStbQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:1236   .text.SCPI_CoreStbQ:0000000000000000 SCPI_CoreStbQ
+     /tmp/ccarfPVd.s:1272   .text.SCPI_CoreTstQ:0000000000000000 $t
+     /tmp/ccarfPVd.s:1279   .text.SCPI_CoreTstQ:0000000000000000 SCPI_CoreTstQ
+     /tmp/ccarfPVd.s:1306   .text.SCPI_CoreWai:0000000000000000 $t
+     /tmp/ccarfPVd.s:1313   .text.SCPI_CoreWai:0000000000000000 SCPI_CoreWai
+
+UNDEFINED SYMBOLS
+SCPI_ErrorClear
+SCPI_ParamInt32
+SCPI_ResultInt32
+SCPI_ResultCharacters
+strlen
+ARM GAS  /tmp/ccarfPVd.s 			page 34
+
+

@@ -1,0 +1,1697 @@
+ARM GAS  /tmp/ccPmqPXA.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.eabi_attribute 20, 1
+   3              		.eabi_attribute 21, 1
+   4              		.eabi_attribute 23, 3
+   5              		.eabi_attribute 24, 1
+   6              		.eabi_attribute 25, 1
+   7              		.eabi_attribute 26, 1
+   8              		.eabi_attribute 30, 1
+   9              		.eabi_attribute 34, 0
+  10              		.eabi_attribute 18, 4
+  11              		.file	"expression.c"
+  12              		.text
+  13              	.Ltext0:
+  14              		.cfi_sections	.debug_frame
+  15              		.section	.text.numericRange,"ax",%progbits
+  16              		.align	1
+  17              		.arch armv6s-m
+  18              		.syntax unified
+  19              		.code	16
+  20              		.thumb_func
+  21              		.fpu softvfp
+  23              	numericRange:
+  24              	.LVL0:
+  25              	.LFB0:
+  26              		.file 1 "libscpi/src/expression.c"
+   1:libscpi/src/expression.c **** /*-
+   2:libscpi/src/expression.c ****  * BSD 2-Clause License
+   3:libscpi/src/expression.c ****  *
+   4:libscpi/src/expression.c ****  * Copyright (c) 2012-2018, Jan Breuer
+   5:libscpi/src/expression.c ****  * All rights reserved.
+   6:libscpi/src/expression.c ****  *
+   7:libscpi/src/expression.c ****  * Redistribution and use in source and binary forms, with or without
+   8:libscpi/src/expression.c ****  * modification, are permitted provided that the following conditions are met:
+   9:libscpi/src/expression.c ****  *
+  10:libscpi/src/expression.c ****  * * Redistributions of source code must retain the above copyright notice, this
+  11:libscpi/src/expression.c ****  *   list of conditions and the following disclaimer.
+  12:libscpi/src/expression.c ****  *
+  13:libscpi/src/expression.c ****  * * Redistributions in binary form must reproduce the above copyright notice,
+  14:libscpi/src/expression.c ****  *   this list of conditions and the following disclaimer in the documentation
+  15:libscpi/src/expression.c ****  *   and/or other materials provided with the distribution.
+  16:libscpi/src/expression.c ****  *
+  17:libscpi/src/expression.c ****  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  18:libscpi/src/expression.c ****  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  19:libscpi/src/expression.c ****  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  20:libscpi/src/expression.c ****  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  21:libscpi/src/expression.c ****  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  22:libscpi/src/expression.c ****  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  23:libscpi/src/expression.c ****  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  24:libscpi/src/expression.c ****  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  25:libscpi/src/expression.c ****  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  26:libscpi/src/expression.c ****  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  27:libscpi/src/expression.c ****  */
+  28:libscpi/src/expression.c **** 
+  29:libscpi/src/expression.c **** /**
+  30:libscpi/src/expression.c ****  * @file   expression.c
+  31:libscpi/src/expression.c ****  *
+  32:libscpi/src/expression.c ****  * @brief  Expressions handling
+ARM GAS  /tmp/ccPmqPXA.s 			page 2
+
+
+  33:libscpi/src/expression.c ****  *
+  34:libscpi/src/expression.c ****  *
+  35:libscpi/src/expression.c ****  */
+  36:libscpi/src/expression.c **** 
+  37:libscpi/src/expression.c **** #include "scpi/expression.h"
+  38:libscpi/src/expression.c **** #include "scpi/error.h"
+  39:libscpi/src/expression.c **** #include "scpi/parser.h"
+  40:libscpi/src/expression.c **** 
+  41:libscpi/src/expression.c **** #include "lexer_private.h"
+  42:libscpi/src/expression.c **** 
+  43:libscpi/src/expression.c **** /**
+  44:libscpi/src/expression.c ****  * Parse one range or single value
+  45:libscpi/src/expression.c ****  * @param state lexer state
+  46:libscpi/src/expression.c ****  * @param isRange return true if parsed expression is range
+  47:libscpi/src/expression.c ****  * @param valueFrom return parsed value from
+  48:libscpi/src/expression.c ****  * @param valueTo return parsed value to
+  49:libscpi/src/expression.c ****  * @return SCPI_EXPR_OK - parsing was succesful
+  50:libscpi/src/expression.c ****  *         SCPI_EXPR_ERROR - parser error
+  51:libscpi/src/expression.c ****  *         SCPI_EXPR_NO_MORE - no more data
+  52:libscpi/src/expression.c ****  */
+  53:libscpi/src/expression.c **** static scpi_expr_result_t numericRange(lex_state_t * state, scpi_bool_t * isRange, scpi_token_t * v
+  27              		.loc 1 53 134 view -0
+  28              		.cfi_startproc
+  29              		@ args = 0, pretend = 0, frame = 0
+  30              		@ frame_needed = 0, uses_anonymous_args = 0
+  31              		.loc 1 53 134 is_stmt 0 view .LVU1
+  32 0000 70B5     		push	{r4, r5, r6, lr}
+  33              	.LCFI0:
+  34              		.cfi_def_cfa_offset 16
+  35              		.cfi_offset 4, -16
+  36              		.cfi_offset 5, -12
+  37              		.cfi_offset 6, -8
+  38              		.cfi_offset 14, -4
+  39 0002 0400     		movs	r4, r0
+  40 0004 0D00     		movs	r5, r1
+  41 0006 1100     		movs	r1, r2
+  42              	.LVL1:
+  43              		.loc 1 53 134 view .LVU2
+  44 0008 1E00     		movs	r6, r3
+  54:libscpi/src/expression.c ****     if (scpiLex_DecimalNumericProgramData(state, valueFrom)) {
+  45              		.loc 1 54 5 is_stmt 1 view .LVU3
+  46              		.loc 1 54 9 is_stmt 0 view .LVU4
+  47 000a FFF7FEFF 		bl	scpiLex_DecimalNumericProgramData
+  48              	.LVL2:
+  49              		.loc 1 54 8 view .LVU5
+  50 000e 0028     		cmp	r0, #0
+  51 0010 01D1     		bne	.L6
+  55:libscpi/src/expression.c ****         if (scpiLex_Colon(state, valueTo)) {
+  56:libscpi/src/expression.c ****             *isRange = TRUE;
+  57:libscpi/src/expression.c ****             if (scpiLex_DecimalNumericProgramData(state, valueTo)) {
+  58:libscpi/src/expression.c ****                 return SCPI_EXPR_OK;
+  59:libscpi/src/expression.c ****             } else {
+  60:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+  61:libscpi/src/expression.c ****             }
+  62:libscpi/src/expression.c ****         } else {
+  63:libscpi/src/expression.c ****             *isRange = FALSE;
+  64:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+ARM GAS  /tmp/ccPmqPXA.s 			page 3
+
+
+  65:libscpi/src/expression.c ****         }
+  66:libscpi/src/expression.c ****     }
+  67:libscpi/src/expression.c **** 
+  68:libscpi/src/expression.c ****     return SCPI_EXPR_NO_MORE;
+  52              		.loc 1 68 12 view .LVU6
+  53 0012 0220     		movs	r0, #2
+  54              	.L2:
+  69:libscpi/src/expression.c **** }
+  55              		.loc 1 69 1 view .LVU7
+  56              		@ sp needed
+  57              	.LVL3:
+  58              	.LVL4:
+  59              	.LVL5:
+  60              		.loc 1 69 1 view .LVU8
+  61 0014 70BD     		pop	{r4, r5, r6, pc}
+  62              	.LVL6:
+  63              	.L6:
+  55:libscpi/src/expression.c ****         if (scpiLex_Colon(state, valueTo)) {
+  64              		.loc 1 55 9 is_stmt 1 view .LVU9
+  55:libscpi/src/expression.c ****         if (scpiLex_Colon(state, valueTo)) {
+  65              		.loc 1 55 13 is_stmt 0 view .LVU10
+  66 0016 3100     		movs	r1, r6
+  67 0018 2000     		movs	r0, r4
+  68 001a FFF7FEFF 		bl	scpiLex_Colon
+  69              	.LVL7:
+  55:libscpi/src/expression.c ****         if (scpiLex_Colon(state, valueTo)) {
+  70              		.loc 1 55 12 view .LVU11
+  71 001e 0028     		cmp	r0, #0
+  72 0020 03D1     		bne	.L7
+  63:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+  73              		.loc 1 63 13 is_stmt 1 view .LVU12
+  63:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+  74              		.loc 1 63 22 is_stmt 0 view .LVU13
+  75 0022 0023     		movs	r3, #0
+  76 0024 2B70     		strb	r3, [r5]
+  64:libscpi/src/expression.c ****         }
+  77              		.loc 1 64 13 is_stmt 1 view .LVU14
+  64:libscpi/src/expression.c ****         }
+  78              		.loc 1 64 20 is_stmt 0 view .LVU15
+  79 0026 0020     		movs	r0, #0
+  80 0028 F4E7     		b	.L2
+  81              	.L7:
+  56:libscpi/src/expression.c ****             if (scpiLex_DecimalNumericProgramData(state, valueTo)) {
+  82              		.loc 1 56 13 is_stmt 1 view .LVU16
+  56:libscpi/src/expression.c ****             if (scpiLex_DecimalNumericProgramData(state, valueTo)) {
+  83              		.loc 1 56 22 is_stmt 0 view .LVU17
+  84 002a 0123     		movs	r3, #1
+  85 002c 2B70     		strb	r3, [r5]
+  57:libscpi/src/expression.c ****                 return SCPI_EXPR_OK;
+  86              		.loc 1 57 13 is_stmt 1 view .LVU18
+  57:libscpi/src/expression.c ****                 return SCPI_EXPR_OK;
+  87              		.loc 1 57 17 is_stmt 0 view .LVU19
+  88 002e 3100     		movs	r1, r6
+  89 0030 2000     		movs	r0, r4
+  90 0032 FFF7FEFF 		bl	scpiLex_DecimalNumericProgramData
+  91              	.LVL8:
+  57:libscpi/src/expression.c ****                 return SCPI_EXPR_OK;
+ARM GAS  /tmp/ccPmqPXA.s 			page 4
+
+
+  92              		.loc 1 57 16 view .LVU20
+  93 0036 0028     		cmp	r0, #0
+  94 0038 01D0     		beq	.L5
+  58:libscpi/src/expression.c ****             } else {
+  95              		.loc 1 58 24 view .LVU21
+  96 003a 0020     		movs	r0, #0
+  97 003c EAE7     		b	.L2
+  98              	.L5:
+  60:libscpi/src/expression.c ****             }
+  99              		.loc 1 60 24 view .LVU22
+ 100 003e 0120     		movs	r0, #1
+ 101 0040 E8E7     		b	.L2
+ 102              		.cfi_endproc
+ 103              	.LFE0:
+ 105              		.section	.text.channelSpec,"ax",%progbits
+ 106              		.align	1
+ 107              		.syntax unified
+ 108              		.code	16
+ 109              		.thumb_func
+ 110              		.fpu softvfp
+ 112              	channelSpec:
+ 113              	.LVL9:
+ 114              	.LFB4:
+  70:libscpi/src/expression.c **** 
+  71:libscpi/src/expression.c **** /**
+  72:libscpi/src/expression.c ****  * Parse entry on specified position
+  73:libscpi/src/expression.c ****  * @param context scpi context
+  74:libscpi/src/expression.c ****  * @param param input parameter
+  75:libscpi/src/expression.c ****  * @param index index of position (start from 0)
+  76:libscpi/src/expression.c ****  * @param isRange return true if expression at index was range
+  77:libscpi/src/expression.c ****  * @param valueFrom return value from
+  78:libscpi/src/expression.c ****  * @param valueTo return value to
+  79:libscpi/src/expression.c ****  * @return SCPI_EXPR_OK - parsing was succesful
+  80:libscpi/src/expression.c ****  *         SCPI_EXPR_ERROR - parser error
+  81:libscpi/src/expression.c ****  *         SCPI_EXPR_NO_MORE - no more data
+  82:libscpi/src/expression.c ****  * @see SCPI_ExprNumericListEntryInt, SCPI_ExprNumericListEntryDouble
+  83:libscpi/src/expression.c ****  */
+  84:libscpi/src/expression.c **** scpi_expr_result_t SCPI_ExprNumericListEntry(scpi_t * context, scpi_parameter_t * param, int index,
+  85:libscpi/src/expression.c ****     lex_state_t lex;
+  86:libscpi/src/expression.c ****     int i;
+  87:libscpi/src/expression.c ****     scpi_expr_result_t res = SCPI_EXPR_OK;
+  88:libscpi/src/expression.c **** 
+  89:libscpi/src/expression.c ****     if (!isRange || !valueFrom || !valueTo || !param) {
+  90:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+  91:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+  92:libscpi/src/expression.c ****     }
+  93:libscpi/src/expression.c **** 
+  94:libscpi/src/expression.c ****     if (param->type != SCPI_TOKEN_PROGRAM_EXPRESSION) {
+  95:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+  96:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+  97:libscpi/src/expression.c ****     }
+  98:libscpi/src/expression.c **** 
+  99:libscpi/src/expression.c ****     lex.buffer = param->ptr + 1;
+ 100:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 101:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ 102:libscpi/src/expression.c **** 
+ 103:libscpi/src/expression.c ****     for (i = 0; i <= index; i++) {
+ARM GAS  /tmp/ccPmqPXA.s 			page 5
+
+
+ 104:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 105:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 106:libscpi/src/expression.c ****             break;
+ 107:libscpi/src/expression.c ****         }
+ 108:libscpi/src/expression.c ****         if (i != index) {
+ 109:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, valueFrom)) {
+ 110:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 111:libscpi/src/expression.c ****                 break;
+ 112:libscpi/src/expression.c ****             }
+ 113:libscpi/src/expression.c ****         }
+ 114:libscpi/src/expression.c ****     }
+ 115:libscpi/src/expression.c **** 
+ 116:libscpi/src/expression.c ****     if (res == SCPI_EXPR_ERROR) {
+ 117:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 118:libscpi/src/expression.c ****     }
+ 119:libscpi/src/expression.c ****     return res;
+ 120:libscpi/src/expression.c **** }
+ 121:libscpi/src/expression.c **** 
+ 122:libscpi/src/expression.c **** /**
+ 123:libscpi/src/expression.c ****  * Parse entry on specified position and convert result to int32_t
+ 124:libscpi/src/expression.c ****  * @param context scpi context
+ 125:libscpi/src/expression.c ****  * @param param input parameter
+ 126:libscpi/src/expression.c ****  * @param index index of position (start from 0)
+ 127:libscpi/src/expression.c ****  * @param isRange return true if expression at index was range
+ 128:libscpi/src/expression.c ****  * @param valueFrom return value from
+ 129:libscpi/src/expression.c ****  * @param valueTo return value to
+ 130:libscpi/src/expression.c ****  * @return SCPI_EXPR_OK - parsing was succesful
+ 131:libscpi/src/expression.c ****  *         SCPI_EXPR_ERROR - parser error
+ 132:libscpi/src/expression.c ****  *         SCPI_EXPR_NO_MORE - no more data
+ 133:libscpi/src/expression.c ****  * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryDouble
+ 134:libscpi/src/expression.c ****  */
+ 135:libscpi/src/expression.c **** scpi_expr_result_t SCPI_ExprNumericListEntryInt(scpi_t * context, scpi_parameter_t * param, int ind
+ 136:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 137:libscpi/src/expression.c ****     scpi_bool_t range = FALSE;
+ 138:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 139:libscpi/src/expression.c ****     scpi_parameter_t paramTo;
+ 140:libscpi/src/expression.c **** 
+ 141:libscpi/src/expression.c ****     res = SCPI_ExprNumericListEntry(context, param, index, &range, &paramFrom, &paramTo);
+ 142:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 143:libscpi/src/expression.c ****         *isRange = range;
+ 144:libscpi/src/expression.c ****         SCPI_ParamToInt32(context, &paramFrom, valueFrom);
+ 145:libscpi/src/expression.c ****         if (range) {
+ 146:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &paramTo, valueTo);
+ 147:libscpi/src/expression.c ****         }
+ 148:libscpi/src/expression.c ****     }
+ 149:libscpi/src/expression.c **** 
+ 150:libscpi/src/expression.c ****     return res;
+ 151:libscpi/src/expression.c **** }
+ 152:libscpi/src/expression.c **** 
+ 153:libscpi/src/expression.c **** /**
+ 154:libscpi/src/expression.c ****  * Parse entry on specified position and convert result to double
+ 155:libscpi/src/expression.c ****  * @param context scpi context
+ 156:libscpi/src/expression.c ****  * @param param input parameter
+ 157:libscpi/src/expression.c ****  * @param index index of position (start from 0)
+ 158:libscpi/src/expression.c ****  * @param isRange return true if expression at index was range
+ 159:libscpi/src/expression.c ****  * @param valueFrom return value from
+ 160:libscpi/src/expression.c ****  * @param valueTo return value to
+ARM GAS  /tmp/ccPmqPXA.s 			page 6
+
+
+ 161:libscpi/src/expression.c ****  * @return SCPI_EXPR_OK - parsing was succesful
+ 162:libscpi/src/expression.c ****  *         SCPI_EXPR_ERROR - parser error
+ 163:libscpi/src/expression.c ****  *         SCPI_EXPR_NO_MORE - no more data
+ 164:libscpi/src/expression.c ****  * @see SCPI_ExprNumericListEntry, SCPI_ExprNumericListEntryInt
+ 165:libscpi/src/expression.c ****  */
+ 166:libscpi/src/expression.c **** scpi_expr_result_t SCPI_ExprNumericListEntryDouble(scpi_t * context, scpi_parameter_t * param, int 
+ 167:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 168:libscpi/src/expression.c ****     scpi_bool_t range = FALSE;
+ 169:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 170:libscpi/src/expression.c ****     scpi_parameter_t paramTo;
+ 171:libscpi/src/expression.c **** 
+ 172:libscpi/src/expression.c ****     res = SCPI_ExprNumericListEntry(context, param, index, &range, &paramFrom, &paramTo);
+ 173:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 174:libscpi/src/expression.c ****         *isRange = range;
+ 175:libscpi/src/expression.c ****         SCPI_ParamToDouble(context, &paramFrom, valueFrom);
+ 176:libscpi/src/expression.c ****         if (range) {
+ 177:libscpi/src/expression.c ****             SCPI_ParamToDouble(context, &paramTo, valueTo);
+ 178:libscpi/src/expression.c ****         }
+ 179:libscpi/src/expression.c ****     }
+ 180:libscpi/src/expression.c **** 
+ 181:libscpi/src/expression.c ****     return res;
+ 182:libscpi/src/expression.c **** }
+ 183:libscpi/src/expression.c **** 
+ 184:libscpi/src/expression.c **** /**
+ 185:libscpi/src/expression.c ****  * Parse one channel_spec e.g. "1!5!8"
+ 186:libscpi/src/expression.c ****  * @param context
+ 187:libscpi/src/expression.c ****  * @param state lexer state
+ 188:libscpi/src/expression.c ****  * @param values range values
+ 189:libscpi/src/expression.c ****  * @param length length of values array
+ 190:libscpi/src/expression.c ****  * @param dimensions real number of dimensions
+ 191:libscpi/src/expression.c ****  */
+ 192:libscpi/src/expression.c **** static scpi_expr_result_t channelSpec(scpi_t * context, lex_state_t * state, int32_t * values, size
+ 115              		.loc 1 192 132 is_stmt 1 view -0
+ 116              		.cfi_startproc
+ 117              		@ args = 4, pretend = 0, frame = 16
+ 118              		@ frame_needed = 0, uses_anonymous_args = 0
+ 119              		.loc 1 192 132 is_stmt 0 view .LVU24
+ 120 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 121              	.LCFI1:
+ 122              		.cfi_def_cfa_offset 20
+ 123              		.cfi_offset 4, -20
+ 124              		.cfi_offset 5, -16
+ 125              		.cfi_offset 6, -12
+ 126              		.cfi_offset 7, -8
+ 127              		.cfi_offset 14, -4
+ 128 0002 C646     		mov	lr, r8
+ 129 0004 00B5     		push	{lr}
+ 130              	.LCFI2:
+ 131              		.cfi_def_cfa_offset 24
+ 132              		.cfi_offset 8, -24
+ 133 0006 84B0     		sub	sp, sp, #16
+ 134              	.LCFI3:
+ 135              		.cfi_def_cfa_offset 40
+ 136 0008 8046     		mov	r8, r0
+ 137 000a 0D00     		movs	r5, r1
+ 138 000c 1700     		movs	r7, r2
+ 139 000e 1E00     		movs	r6, r3
+ARM GAS  /tmp/ccPmqPXA.s 			page 7
+
+
+ 193:libscpi/src/expression.c ****     scpi_parameter_t param;
+ 140              		.loc 1 193 5 is_stmt 1 view .LVU25
+ 194:libscpi/src/expression.c ****     size_t i = 0;
+ 141              		.loc 1 194 5 view .LVU26
+ 142              	.LVL10:
+ 195:libscpi/src/expression.c ****     while (scpiLex_DecimalNumericProgramData(state, &param)) {
+ 143              		.loc 1 195 5 view .LVU27
+ 194:libscpi/src/expression.c ****     size_t i = 0;
+ 144              		.loc 1 194 12 is_stmt 0 view .LVU28
+ 145 0010 0024     		movs	r4, #0
+ 146              		.loc 1 195 11 view .LVU29
+ 147 0012 0DE0     		b	.L9
+ 148              	.LVL11:
+ 149              	.L16:
+ 196:libscpi/src/expression.c ****         if (i < length) {
+ 197:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &param, &values[i]);
+ 150              		.loc 1 197 13 is_stmt 1 view .LVU30
+ 151              		.loc 1 197 55 is_stmt 0 view .LVU31
+ 152 0014 A200     		lsls	r2, r4, #2
+ 153              		.loc 1 197 13 view .LVU32
+ 154 0016 BA18     		adds	r2, r7, r2
+ 155 0018 01A9     		add	r1, sp, #4
+ 156 001a 4046     		mov	r0, r8
+ 157 001c FFF7FEFF 		bl	SCPI_ParamToInt32
+ 158              	.LVL12:
+ 159              	.L10:
+ 198:libscpi/src/expression.c ****         }
+ 199:libscpi/src/expression.c **** 
+ 200:libscpi/src/expression.c ****         if (scpiLex_SpecificCharacter(state, &param, '!')) {
+ 160              		.loc 1 200 9 is_stmt 1 view .LVU33
+ 161              		.loc 1 200 13 is_stmt 0 view .LVU34
+ 162 0020 2122     		movs	r2, #33
+ 163 0022 01A9     		add	r1, sp, #4
+ 164 0024 2800     		movs	r0, r5
+ 165 0026 FFF7FEFF 		bl	scpiLex_SpecificCharacter
+ 166              	.LVL13:
+ 167              		.loc 1 200 12 view .LVU35
+ 168 002a 0028     		cmp	r0, #0
+ 169 002c 09D0     		beq	.L11
+ 201:libscpi/src/expression.c ****             i++;
+ 170              		.loc 1 201 13 is_stmt 1 view .LVU36
+ 171              		.loc 1 201 14 is_stmt 0 view .LVU37
+ 172 002e 0134     		adds	r4, r4, #1
+ 173              	.LVL14:
+ 174              	.L9:
+ 195:libscpi/src/expression.c ****         if (i < length) {
+ 175              		.loc 1 195 11 is_stmt 1 view .LVU38
+ 195:libscpi/src/expression.c ****         if (i < length) {
+ 176              		.loc 1 195 12 is_stmt 0 view .LVU39
+ 177 0030 01A9     		add	r1, sp, #4
+ 178 0032 2800     		movs	r0, r5
+ 179 0034 FFF7FEFF 		bl	scpiLex_DecimalNumericProgramData
+ 180              	.LVL15:
+ 195:libscpi/src/expression.c ****         if (i < length) {
+ 181              		.loc 1 195 11 view .LVU40
+ 182 0038 0028     		cmp	r0, #0
+ 183 003a 0AD0     		beq	.L15
+ARM GAS  /tmp/ccPmqPXA.s 			page 8
+
+
+ 196:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &param, &values[i]);
+ 184              		.loc 1 196 9 is_stmt 1 view .LVU41
+ 196:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &param, &values[i]);
+ 185              		.loc 1 196 12 is_stmt 0 view .LVU42
+ 186 003c B442     		cmp	r4, r6
+ 187 003e EFD2     		bcs	.L10
+ 188 0040 E8E7     		b	.L16
+ 189              	.L11:
+ 202:libscpi/src/expression.c ****         } else {
+ 203:libscpi/src/expression.c ****             *dimensions = i + 1;
+ 190              		.loc 1 203 13 is_stmt 1 view .LVU43
+ 191              		.loc 1 203 29 is_stmt 0 view .LVU44
+ 192 0042 0134     		adds	r4, r4, #1
+ 193              	.LVL16:
+ 194              		.loc 1 203 25 view .LVU45
+ 195 0044 0A9B     		ldr	r3, [sp, #40]
+ 196 0046 1C60     		str	r4, [r3]
+ 204:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+ 197              		.loc 1 204 13 is_stmt 1 view .LVU46
+ 198              		.loc 1 204 20 is_stmt 0 view .LVU47
+ 199 0048 0020     		movs	r0, #0
+ 200              	.LVL17:
+ 201              	.L12:
+ 205:libscpi/src/expression.c ****         }
+ 206:libscpi/src/expression.c ****     }
+ 207:libscpi/src/expression.c **** 
+ 208:libscpi/src/expression.c ****     if (i == 0) {
+ 209:libscpi/src/expression.c ****         return SCPI_EXPR_NO_MORE;
+ 210:libscpi/src/expression.c ****     } else {
+ 211:libscpi/src/expression.c ****         /* there was at least one number followed by !, but after ! was not another number */
+ 212:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 213:libscpi/src/expression.c ****     }
+ 214:libscpi/src/expression.c **** }
+ 202              		.loc 1 214 1 view .LVU48
+ 203 004a 04B0     		add	sp, sp, #16
+ 204              		@ sp needed
+ 205              	.LVL18:
+ 206              	.LVL19:
+ 207              	.LVL20:
+ 208              	.LVL21:
+ 209              		.loc 1 214 1 view .LVU49
+ 210 004c 04BC     		pop	{r2}
+ 211 004e 9046     		mov	r8, r2
+ 212 0050 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 213              	.LVL22:
+ 214              	.L15:
+ 208:libscpi/src/expression.c ****         return SCPI_EXPR_NO_MORE;
+ 215              		.loc 1 208 5 is_stmt 1 view .LVU50
+ 208:libscpi/src/expression.c ****         return SCPI_EXPR_NO_MORE;
+ 216              		.loc 1 208 8 is_stmt 0 view .LVU51
+ 217 0052 002C     		cmp	r4, #0
+ 218 0054 01D0     		beq	.L17
+ 212:libscpi/src/expression.c ****     }
+ 219              		.loc 1 212 16 view .LVU52
+ 220 0056 0120     		movs	r0, #1
+ 221 0058 F7E7     		b	.L12
+ 222              	.L17:
+ARM GAS  /tmp/ccPmqPXA.s 			page 9
+
+
+ 209:libscpi/src/expression.c ****     } else {
+ 223              		.loc 1 209 16 view .LVU53
+ 224 005a 0230     		adds	r0, r0, #2
+ 225 005c F5E7     		b	.L12
+ 226              		.cfi_endproc
+ 227              	.LFE4:
+ 229              		.section	.text.channelRange,"ax",%progbits
+ 230              		.align	1
+ 231              		.syntax unified
+ 232              		.code	16
+ 233              		.thumb_func
+ 234              		.fpu softvfp
+ 236              	channelRange:
+ 237              	.LVL23:
+ 238              	.LFB5:
+ 215:libscpi/src/expression.c **** 
+ 216:libscpi/src/expression.c **** /**
+ 217:libscpi/src/expression.c ****  * Parse channel_range e.g. "1!2:5!6"
+ 218:libscpi/src/expression.c ****  * @param context
+ 219:libscpi/src/expression.c ****  * @param state lexer state
+ 220:libscpi/src/expression.c ****  * @param isRange return true if it is range
+ 221:libscpi/src/expression.c ****  * @param valuesFrom return array of values from
+ 222:libscpi/src/expression.c ****  * @param valuesTo return array of values to
+ 223:libscpi/src/expression.c ****  * @param length length of values arrays
+ 224:libscpi/src/expression.c ****  * @param dimensions real number of dimensions
+ 225:libscpi/src/expression.c ****  */
+ 226:libscpi/src/expression.c **** static scpi_expr_result_t channelRange(scpi_t * context, lex_state_t * state, scpi_bool_t * isRange
+ 239              		.loc 1 226 180 is_stmt 1 view -0
+ 240              		.cfi_startproc
+ 241              		@ args = 12, pretend = 0, frame = 24
+ 242              		@ frame_needed = 0, uses_anonymous_args = 0
+ 243              		.loc 1 226 180 is_stmt 0 view .LVU55
+ 244 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 245              	.LCFI4:
+ 246              		.cfi_def_cfa_offset 20
+ 247              		.cfi_offset 4, -20
+ 248              		.cfi_offset 5, -16
+ 249              		.cfi_offset 6, -12
+ 250              		.cfi_offset 7, -8
+ 251              		.cfi_offset 14, -4
+ 252 0002 89B0     		sub	sp, sp, #36
+ 253              	.LCFI5:
+ 254              		.cfi_def_cfa_offset 56
+ 255 0004 0700     		movs	r7, r0
+ 256 0006 0D00     		movs	r5, r1
+ 257 0008 1600     		movs	r6, r2
+ 258 000a 1A00     		movs	r2, r3
+ 259              	.LVL24:
+ 227:libscpi/src/expression.c ****     scpi_token_t token;
+ 260              		.loc 1 227 5 is_stmt 1 view .LVU56
+ 228:libscpi/src/expression.c ****     scpi_expr_result_t err;
+ 261              		.loc 1 228 5 view .LVU57
+ 229:libscpi/src/expression.c ****     size_t fromDimensions;
+ 262              		.loc 1 229 5 view .LVU58
+ 230:libscpi/src/expression.c ****     size_t toDimensions;
+ 263              		.loc 1 230 5 view .LVU59
+ 231:libscpi/src/expression.c **** 
+ARM GAS  /tmp/ccPmqPXA.s 			page 10
+
+
+ 232:libscpi/src/expression.c ****     err = channelSpec(context, state, valuesFrom, length, &fromDimensions);
+ 264              		.loc 1 232 5 view .LVU60
+ 265              		.loc 1 232 11 is_stmt 0 view .LVU61
+ 266 000c 04AB     		add	r3, sp, #16
+ 267              	.LVL25:
+ 268              		.loc 1 232 11 view .LVU62
+ 269 000e 0093     		str	r3, [sp]
+ 270 0010 0F9B     		ldr	r3, [sp, #60]
+ 271 0012 FFF7FEFF 		bl	channelSpec
+ 272              	.LVL26:
+ 273              		.loc 1 232 11 view .LVU63
+ 274 0016 041E     		subs	r4, r0, #0
+ 275              	.LVL27:
+ 233:libscpi/src/expression.c ****     if (err == SCPI_EXPR_OK) {
+ 276              		.loc 1 233 5 is_stmt 1 view .LVU64
+ 277              		.loc 1 233 8 is_stmt 0 view .LVU65
+ 278 0018 04D0     		beq	.L25
+ 234:libscpi/src/expression.c ****         if (scpiLex_Colon(state, &token)) {
+ 235:libscpi/src/expression.c ****             *isRange = TRUE;
+ 236:libscpi/src/expression.c ****             err = channelSpec(context, state, valuesTo, length, &toDimensions);
+ 237:libscpi/src/expression.c ****             if (err != SCPI_EXPR_OK) {
+ 238:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 239:libscpi/src/expression.c ****             }
+ 240:libscpi/src/expression.c ****             if (fromDimensions != toDimensions) {
+ 241:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 242:libscpi/src/expression.c ****             }
+ 243:libscpi/src/expression.c ****             *dimensions = fromDimensions;
+ 244:libscpi/src/expression.c ****         } else {
+ 245:libscpi/src/expression.c ****             *isRange = FALSE;
+ 246:libscpi/src/expression.c ****             *dimensions = fromDimensions;
+ 247:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+ 248:libscpi/src/expression.c ****         }
+ 249:libscpi/src/expression.c ****     } else if (err == SCPI_EXPR_NO_MORE) {
+ 279              		.loc 1 249 12 is_stmt 1 view .LVU66
+ 280              		.loc 1 249 15 is_stmt 0 view .LVU67
+ 281 001a 0228     		cmp	r0, #2
+ 282 001c 25D0     		beq	.L26
+ 283              	.LVL28:
+ 284              	.L21:
+ 250:libscpi/src/expression.c ****         err = SCPI_EXPR_ERROR;
+ 251:libscpi/src/expression.c ****     }
+ 252:libscpi/src/expression.c **** 
+ 253:libscpi/src/expression.c ****     return err;
+ 254:libscpi/src/expression.c **** }
+ 285              		.loc 1 254 1 view .LVU68
+ 286 001e 2000     		movs	r0, r4
+ 287 0020 09B0     		add	sp, sp, #36
+ 288              		@ sp needed
+ 289              	.LVL29:
+ 290              	.LVL30:
+ 291              	.LVL31:
+ 292              		.loc 1 254 1 view .LVU69
+ 293 0022 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 294              	.LVL32:
+ 295              	.L25:
+ 234:libscpi/src/expression.c ****         if (scpiLex_Colon(state, &token)) {
+ 296              		.loc 1 234 9 is_stmt 1 view .LVU70
+ARM GAS  /tmp/ccPmqPXA.s 			page 11
+
+
+ 234:libscpi/src/expression.c ****         if (scpiLex_Colon(state, &token)) {
+ 297              		.loc 1 234 13 is_stmt 0 view .LVU71
+ 298 0024 05A9     		add	r1, sp, #20
+ 299 0026 2800     		movs	r0, r5
+ 300              	.LVL33:
+ 234:libscpi/src/expression.c ****         if (scpiLex_Colon(state, &token)) {
+ 301              		.loc 1 234 13 view .LVU72
+ 302 0028 FFF7FEFF 		bl	scpiLex_Colon
+ 303              	.LVL34:
+ 234:libscpi/src/expression.c ****         if (scpiLex_Colon(state, &token)) {
+ 304              		.loc 1 234 12 view .LVU73
+ 305 002c 0028     		cmp	r0, #0
+ 306 002e 05D1     		bne	.L27
+ 245:libscpi/src/expression.c ****             *dimensions = fromDimensions;
+ 307              		.loc 1 245 13 is_stmt 1 view .LVU74
+ 245:libscpi/src/expression.c ****             *dimensions = fromDimensions;
+ 308              		.loc 1 245 22 is_stmt 0 view .LVU75
+ 309 0030 0023     		movs	r3, #0
+ 310 0032 3370     		strb	r3, [r6]
+ 246:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+ 311              		.loc 1 246 13 is_stmt 1 view .LVU76
+ 246:libscpi/src/expression.c ****             return SCPI_EXPR_OK;
+ 312              		.loc 1 246 25 is_stmt 0 view .LVU77
+ 313 0034 109B     		ldr	r3, [sp, #64]
+ 314 0036 049A     		ldr	r2, [sp, #16]
+ 315 0038 1A60     		str	r2, [r3]
+ 247:libscpi/src/expression.c ****         }
+ 316              		.loc 1 247 13 is_stmt 1 view .LVU78
+ 247:libscpi/src/expression.c ****         }
+ 317              		.loc 1 247 20 is_stmt 0 view .LVU79
+ 318 003a F0E7     		b	.L21
+ 319              	.L27:
+ 235:libscpi/src/expression.c ****             err = channelSpec(context, state, valuesTo, length, &toDimensions);
+ 320              		.loc 1 235 13 is_stmt 1 view .LVU80
+ 235:libscpi/src/expression.c ****             err = channelSpec(context, state, valuesTo, length, &toDimensions);
+ 321              		.loc 1 235 22 is_stmt 0 view .LVU81
+ 322 003c 0123     		movs	r3, #1
+ 323 003e 3370     		strb	r3, [r6]
+ 236:libscpi/src/expression.c ****             if (err != SCPI_EXPR_OK) {
+ 324              		.loc 1 236 13 is_stmt 1 view .LVU82
+ 236:libscpi/src/expression.c ****             if (err != SCPI_EXPR_OK) {
+ 325              		.loc 1 236 19 is_stmt 0 view .LVU83
+ 326 0040 03AB     		add	r3, sp, #12
+ 327 0042 0093     		str	r3, [sp]
+ 328 0044 0F9B     		ldr	r3, [sp, #60]
+ 329 0046 0E9A     		ldr	r2, [sp, #56]
+ 330 0048 2900     		movs	r1, r5
+ 331 004a 3800     		movs	r0, r7
+ 332 004c FFF7FEFF 		bl	channelSpec
+ 333              	.LVL35:
+ 334 0050 041E     		subs	r4, r0, #0
+ 335              	.LVL36:
+ 237:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 336              		.loc 1 237 13 is_stmt 1 view .LVU84
+ 237:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 337              		.loc 1 237 16 is_stmt 0 view .LVU85
+ 338 0052 06D1     		bne	.L22
+ARM GAS  /tmp/ccPmqPXA.s 			page 12
+
+
+ 240:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 339              		.loc 1 240 13 is_stmt 1 view .LVU86
+ 240:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 340              		.loc 1 240 32 is_stmt 0 view .LVU87
+ 341 0054 049B     		ldr	r3, [sp, #16]
+ 240:libscpi/src/expression.c ****                 return SCPI_EXPR_ERROR;
+ 342              		.loc 1 240 16 view .LVU88
+ 343 0056 039A     		ldr	r2, [sp, #12]
+ 344 0058 9342     		cmp	r3, r2
+ 345 005a 04D1     		bne	.L23
+ 243:libscpi/src/expression.c ****         } else {
+ 346              		.loc 1 243 13 is_stmt 1 view .LVU89
+ 243:libscpi/src/expression.c ****         } else {
+ 347              		.loc 1 243 25 is_stmt 0 view .LVU90
+ 348 005c 109A     		ldr	r2, [sp, #64]
+ 349 005e 1360     		str	r3, [r2]
+ 350 0060 DDE7     		b	.L21
+ 351              	.L22:
+ 238:libscpi/src/expression.c ****             }
+ 352              		.loc 1 238 24 view .LVU91
+ 353 0062 0124     		movs	r4, #1
+ 354 0064 DBE7     		b	.L21
+ 355              	.L23:
+ 241:libscpi/src/expression.c ****             }
+ 356              		.loc 1 241 24 view .LVU92
+ 357 0066 0124     		movs	r4, #1
+ 358 0068 D9E7     		b	.L21
+ 359              	.L26:
+ 250:libscpi/src/expression.c ****     }
+ 360              		.loc 1 250 13 view .LVU93
+ 361 006a 0124     		movs	r4, #1
+ 362 006c D7E7     		b	.L21
+ 363              		.cfi_endproc
+ 364              	.LFE5:
+ 366              		.section	.text.SCPI_ExprNumericListEntry,"ax",%progbits
+ 367              		.align	1
+ 368              		.global	SCPI_ExprNumericListEntry
+ 369              		.syntax unified
+ 370              		.code	16
+ 371              		.thumb_func
+ 372              		.fpu softvfp
+ 374              	SCPI_ExprNumericListEntry:
+ 375              	.LVL37:
+ 376              	.LFB1:
+  84:libscpi/src/expression.c ****     lex_state_t lex;
+ 377              		.loc 1 84 182 is_stmt 1 view -0
+ 378              		.cfi_startproc
+ 379              		@ args = 8, pretend = 0, frame = 16
+ 380              		@ frame_needed = 0, uses_anonymous_args = 0
+  84:libscpi/src/expression.c ****     lex_state_t lex;
+ 381              		.loc 1 84 182 is_stmt 0 view .LVU95
+ 382 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 383              	.LCFI6:
+ 384              		.cfi_def_cfa_offset 20
+ 385              		.cfi_offset 4, -20
+ 386              		.cfi_offset 5, -16
+ 387              		.cfi_offset 6, -12
+ARM GAS  /tmp/ccPmqPXA.s 			page 13
+
+
+ 388              		.cfi_offset 7, -8
+ 389              		.cfi_offset 14, -4
+ 390 0002 D646     		mov	lr, r10
+ 391 0004 4F46     		mov	r7, r9
+ 392 0006 80B5     		push	{r7, lr}
+ 393              	.LCFI7:
+ 394              		.cfi_def_cfa_offset 28
+ 395              		.cfi_offset 9, -28
+ 396              		.cfi_offset 10, -24
+ 397 0008 85B0     		sub	sp, sp, #20
+ 398              	.LCFI8:
+ 399              		.cfi_def_cfa_offset 48
+ 400 000a 8246     		mov	r10, r0
+ 401 000c 1700     		movs	r7, r2
+ 402 000e 1E1E     		subs	r6, r3, #0
+ 403 0010 0C9B     		ldr	r3, [sp, #48]
+ 404              	.LVL38:
+  84:libscpi/src/expression.c ****     lex_state_t lex;
+ 405              		.loc 1 84 182 view .LVU96
+ 406 0012 9946     		mov	r9, r3
+  85:libscpi/src/expression.c ****     int i;
+ 407              		.loc 1 85 5 is_stmt 1 view .LVU97
+  86:libscpi/src/expression.c ****     scpi_expr_result_t res = SCPI_EXPR_OK;
+ 408              		.loc 1 86 5 view .LVU98
+  87:libscpi/src/expression.c **** 
+ 409              		.loc 1 87 5 view .LVU99
+ 410              	.LVL39:
+  89:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 411              		.loc 1 89 5 view .LVU100
+  89:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 412              		.loc 1 89 8 is_stmt 0 view .LVU101
+ 413 0014 13D0     		beq	.L29
+  89:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 414              		.loc 1 89 18 discriminator 1 view .LVU102
+ 415 0016 002B     		cmp	r3, #0
+ 416 0018 11D0     		beq	.L29
+  89:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 417              		.loc 1 89 32 discriminator 2 view .LVU103
+ 418 001a 0D9B     		ldr	r3, [sp, #52]
+ 419 001c 002B     		cmp	r3, #0
+ 420 001e 0ED0     		beq	.L29
+  89:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 421              		.loc 1 89 44 discriminator 3 view .LVU104
+ 422 0020 0029     		cmp	r1, #0
+ 423 0022 0CD0     		beq	.L29
+  94:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+ 424              		.loc 1 94 5 is_stmt 1 view .LVU105
+  94:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+ 425              		.loc 1 94 14 is_stmt 0 view .LVU106
+ 426 0024 0B78     		ldrb	r3, [r1]
+  94:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+ 427              		.loc 1 94 8 view .LVU107
+ 428 0026 102B     		cmp	r3, #16
+ 429 0028 14D1     		bne	.L39
+  99:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 430              		.loc 1 99 5 is_stmt 1 view .LVU108
+  99:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ARM GAS  /tmp/ccPmqPXA.s 			page 14
+
+
+ 431              		.loc 1 99 29 is_stmt 0 view .LVU109
+ 432 002a 4B68     		ldr	r3, [r1, #4]
+ 433 002c 0133     		adds	r3, r3, #1
+  99:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 434              		.loc 1 99 16 view .LVU110
+ 435 002e 0193     		str	r3, [sp, #4]
+ 100:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ 436              		.loc 1 100 5 is_stmt 1 view .LVU111
+ 100:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ 437              		.loc 1 100 13 is_stmt 0 view .LVU112
+ 438 0030 0293     		str	r3, [sp, #8]
+ 101:libscpi/src/expression.c **** 
+ 439              		.loc 1 101 5 is_stmt 1 view .LVU113
+ 101:libscpi/src/expression.c **** 
+ 440              		.loc 1 101 20 is_stmt 0 view .LVU114
+ 441 0032 8B68     		ldr	r3, [r1, #8]
+ 101:libscpi/src/expression.c **** 
+ 442              		.loc 1 101 26 view .LVU115
+ 443 0034 023B     		subs	r3, r3, #2
+ 101:libscpi/src/expression.c **** 
+ 444              		.loc 1 101 13 view .LVU116
+ 445 0036 0393     		str	r3, [sp, #12]
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 446              		.loc 1 103 5 is_stmt 1 view .LVU117
+ 447              	.LVL40:
+  87:libscpi/src/expression.c **** 
+ 448              		.loc 1 87 24 is_stmt 0 view .LVU118
+ 449 0038 0024     		movs	r4, #0
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 450              		.loc 1 103 12 view .LVU119
+ 451 003a 0025     		movs	r5, #0
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 452              		.loc 1 103 5 view .LVU120
+ 453 003c 11E0     		b	.L33
+ 454              	.LVL41:
+ 455              	.L29:
+  90:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 456              		.loc 1 90 9 is_stmt 1 view .LVU121
+ 457 003e 1A49     		ldr	r1, .L40
+ 458              	.LVL42:
+  90:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 459              		.loc 1 90 9 is_stmt 0 view .LVU122
+ 460 0040 5046     		mov	r0, r10
+ 461              	.LVL43:
+  90:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 462              		.loc 1 90 9 view .LVU123
+ 463 0042 FFF7FEFF 		bl	SCPI_ErrorPush
+ 464              	.LVL44:
+  91:libscpi/src/expression.c ****     }
+ 465              		.loc 1 91 9 is_stmt 1 view .LVU124
+  91:libscpi/src/expression.c ****     }
+ 466              		.loc 1 91 16 is_stmt 0 view .LVU125
+ 467 0046 0124     		movs	r4, #1
+ 468              	.LVL45:
+ 469              	.L31:
+ 120:libscpi/src/expression.c **** 
+ 470              		.loc 1 120 1 view .LVU126
+ARM GAS  /tmp/ccPmqPXA.s 			page 15
+
+
+ 471 0048 2000     		movs	r0, r4
+ 472 004a 05B0     		add	sp, sp, #20
+ 473              		@ sp needed
+ 474              	.LVL46:
+ 475              	.LVL47:
+ 476              	.LVL48:
+ 120:libscpi/src/expression.c **** 
+ 477              		.loc 1 120 1 view .LVU127
+ 478 004c 0CBC     		pop	{r2, r3}
+ 479 004e 9146     		mov	r9, r2
+ 480 0050 9A46     		mov	r10, r3
+ 481 0052 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 482              	.LVL49:
+ 483              	.L39:
+  95:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 484              		.loc 1 95 9 is_stmt 1 view .LVU128
+ 485 0054 6821     		movs	r1, #104
+ 486              	.LVL50:
+  95:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 487              		.loc 1 95 9 is_stmt 0 view .LVU129
+ 488 0056 4942     		rsbs	r1, r1, #0
+ 489 0058 FFF7FEFF 		bl	SCPI_ErrorPush
+ 490              	.LVL51:
+  96:libscpi/src/expression.c ****     }
+ 491              		.loc 1 96 9 is_stmt 1 view .LVU130
+  96:libscpi/src/expression.c ****     }
+ 492              		.loc 1 96 16 is_stmt 0 view .LVU131
+ 493 005c 0124     		movs	r4, #1
+ 494 005e F3E7     		b	.L31
+ 495              	.LVL52:
+ 496              	.L35:
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 497              		.loc 1 103 29 is_stmt 1 discriminator 2 view .LVU132
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 498              		.loc 1 103 30 is_stmt 0 discriminator 2 view .LVU133
+ 499 0060 0135     		adds	r5, r5, #1
+ 500              	.LVL53:
+ 501              	.L33:
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 502              		.loc 1 103 17 is_stmt 1 discriminator 1 view .LVU134
+ 103:libscpi/src/expression.c ****         res = numericRange(&lex, isRange, valueFrom, valueTo);
+ 503              		.loc 1 103 5 is_stmt 0 discriminator 1 view .LVU135
+ 504 0062 BD42     		cmp	r5, r7
+ 505 0064 16DC     		bgt	.L34
+ 104:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 506              		.loc 1 104 9 is_stmt 1 view .LVU136
+ 104:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 507              		.loc 1 104 15 is_stmt 0 view .LVU137
+ 508 0066 0D9B     		ldr	r3, [sp, #52]
+ 509 0068 4A46     		mov	r2, r9
+ 510 006a 3100     		movs	r1, r6
+ 511 006c 01A8     		add	r0, sp, #4
+ 512 006e FFF7FEFF 		bl	numericRange
+ 513              	.LVL54:
+ 514 0072 041E     		subs	r4, r0, #0
+ 515              	.LVL55:
+ 105:libscpi/src/expression.c ****             break;
+ARM GAS  /tmp/ccPmqPXA.s 			page 16
+
+
+ 516              		.loc 1 105 9 is_stmt 1 view .LVU138
+ 105:libscpi/src/expression.c ****             break;
+ 517              		.loc 1 105 12 is_stmt 0 view .LVU139
+ 518 0074 0ED1     		bne	.L34
+ 108:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, valueFrom)) {
+ 519              		.loc 1 108 9 is_stmt 1 view .LVU140
+ 108:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, valueFrom)) {
+ 520              		.loc 1 108 12 is_stmt 0 view .LVU141
+ 521 0076 BD42     		cmp	r5, r7
+ 522 0078 F2D0     		beq	.L35
+ 109:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 523              		.loc 1 109 13 is_stmt 1 view .LVU142
+ 109:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 524              		.loc 1 109 18 is_stmt 0 view .LVU143
+ 525 007a 4946     		mov	r1, r9
+ 526 007c 01A8     		add	r0, sp, #4
+ 527              	.LVL56:
+ 109:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 528              		.loc 1 109 18 view .LVU144
+ 529 007e FFF7FEFF 		bl	scpiLex_Comma
+ 530              	.LVL57:
+ 109:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 531              		.loc 1 109 16 view .LVU145
+ 532 0082 0028     		cmp	r0, #0
+ 533 0084 ECD1     		bne	.L35
+ 110:libscpi/src/expression.c ****                 break;
+ 534              		.loc 1 110 17 is_stmt 1 view .LVU146
+ 110:libscpi/src/expression.c ****                 break;
+ 535              		.loc 1 110 23 is_stmt 0 view .LVU147
+ 536 0086 01A8     		add	r0, sp, #4
+ 537 0088 FFF7FEFF 		bl	scpiLex_IsEos
+ 538              	.LVL58:
+ 110:libscpi/src/expression.c ****                 break;
+ 539              		.loc 1 110 63 view .LVU148
+ 540 008c 0028     		cmp	r0, #0
+ 541 008e 09D1     		bne	.L38
+ 542 0090 0134     		adds	r4, r4, #1
+ 543              	.LVL59:
+ 110:libscpi/src/expression.c ****                 break;
+ 544              		.loc 1 110 63 view .LVU149
+ 545 0092 01E0     		b	.L36
+ 546              	.LVL60:
+ 547              	.L34:
+ 116:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 548              		.loc 1 116 5 is_stmt 1 view .LVU150
+ 116:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 549              		.loc 1 116 8 is_stmt 0 view .LVU151
+ 550 0094 012C     		cmp	r4, #1
+ 551 0096 D7D1     		bne	.L31
+ 552              	.LVL61:
+ 553              	.L36:
+ 117:libscpi/src/expression.c ****     }
+ 554              		.loc 1 117 9 is_stmt 1 view .LVU152
+ 555 0098 AA21     		movs	r1, #170
+ 556 009a 4942     		rsbs	r1, r1, #0
+ 557 009c 5046     		mov	r0, r10
+ 558 009e FFF7FEFF 		bl	SCPI_ErrorPush
+ARM GAS  /tmp/ccPmqPXA.s 			page 17
+
+
+ 559              	.LVL62:
+ 560 00a2 D1E7     		b	.L31
+ 561              	.LVL63:
+ 562              	.L38:
+ 110:libscpi/src/expression.c ****                 break;
+ 563              		.loc 1 110 63 is_stmt 0 view .LVU153
+ 564 00a4 0224     		movs	r4, #2
+ 565              	.LVL64:
+ 110:libscpi/src/expression.c ****                 break;
+ 566              		.loc 1 110 63 view .LVU154
+ 567 00a6 CFE7     		b	.L31
+ 568              	.L41:
+ 569              		.align	2
+ 570              	.L40:
+ 571 00a8 CAFEFFFF 		.word	-310
+ 572              		.cfi_endproc
+ 573              	.LFE1:
+ 575              		.section	.text.SCPI_ExprNumericListEntryInt,"ax",%progbits
+ 576              		.align	1
+ 577              		.global	SCPI_ExprNumericListEntryInt
+ 578              		.syntax unified
+ 579              		.code	16
+ 580              		.thumb_func
+ 581              		.fpu softvfp
+ 583              	SCPI_ExprNumericListEntryInt:
+ 584              	.LVL65:
+ 585              	.LFB2:
+ 135:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 586              		.loc 1 135 167 is_stmt 1 view -0
+ 587              		.cfi_startproc
+ 588              		@ args = 8, pretend = 0, frame = 32
+ 589              		@ frame_needed = 0, uses_anonymous_args = 0
+ 135:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 590              		.loc 1 135 167 is_stmt 0 view .LVU156
+ 591 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 592              	.LCFI9:
+ 593              		.cfi_def_cfa_offset 20
+ 594              		.cfi_offset 4, -20
+ 595              		.cfi_offset 5, -16
+ 596              		.cfi_offset 6, -12
+ 597              		.cfi_offset 7, -8
+ 598              		.cfi_offset 14, -4
+ 599 0002 8BB0     		sub	sp, sp, #44
+ 600              	.LCFI10:
+ 601              		.cfi_def_cfa_offset 64
+ 602 0004 0500     		movs	r5, r0
+ 603 0006 1E00     		movs	r6, r3
+ 136:libscpi/src/expression.c ****     scpi_bool_t range = FALSE;
+ 604              		.loc 1 136 5 is_stmt 1 view .LVU157
+ 137:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 605              		.loc 1 137 5 view .LVU158
+ 137:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 606              		.loc 1 137 17 is_stmt 0 view .LVU159
+ 607 0008 2723     		movs	r3, #39
+ 608              	.LVL66:
+ 137:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 609              		.loc 1 137 17 view .LVU160
+ARM GAS  /tmp/ccPmqPXA.s 			page 18
+
+
+ 610 000a 6B44     		add	r3, r3, sp
+ 611 000c 0020     		movs	r0, #0
+ 612              	.LVL67:
+ 137:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 613              		.loc 1 137 17 view .LVU161
+ 614 000e 1870     		strb	r0, [r3]
+ 138:libscpi/src/expression.c ****     scpi_parameter_t paramTo;
+ 615              		.loc 1 138 5 is_stmt 1 view .LVU162
+ 139:libscpi/src/expression.c **** 
+ 616              		.loc 1 139 5 view .LVU163
+ 141:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 617              		.loc 1 141 5 view .LVU164
+ 141:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 618              		.loc 1 141 11 is_stmt 0 view .LVU165
+ 619 0010 03A8     		add	r0, sp, #12
+ 620 0012 0190     		str	r0, [sp, #4]
+ 621 0014 06A8     		add	r0, sp, #24
+ 622 0016 0090     		str	r0, [sp]
+ 623 0018 2800     		movs	r0, r5
+ 624 001a FFF7FEFF 		bl	SCPI_ExprNumericListEntry
+ 625              	.LVL68:
+ 141:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 626              		.loc 1 141 11 view .LVU166
+ 627 001e 041E     		subs	r4, r0, #0
+ 628              	.LVL69:
+ 142:libscpi/src/expression.c ****         *isRange = range;
+ 629              		.loc 1 142 5 is_stmt 1 view .LVU167
+ 142:libscpi/src/expression.c ****         *isRange = range;
+ 630              		.loc 1 142 8 is_stmt 0 view .LVU168
+ 631 0020 02D0     		beq	.L44
+ 632              	.LVL70:
+ 633              	.L43:
+ 150:libscpi/src/expression.c **** }
+ 634              		.loc 1 150 5 is_stmt 1 view .LVU169
+ 151:libscpi/src/expression.c **** 
+ 635              		.loc 1 151 1 is_stmt 0 view .LVU170
+ 636 0022 2000     		movs	r0, r4
+ 637 0024 0BB0     		add	sp, sp, #44
+ 638              		@ sp needed
+ 639              	.LVL71:
+ 640              	.LVL72:
+ 151:libscpi/src/expression.c **** 
+ 641              		.loc 1 151 1 view .LVU171
+ 642 0026 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 643              	.LVL73:
+ 644              	.L44:
+ 143:libscpi/src/expression.c ****         SCPI_ParamToInt32(context, &paramFrom, valueFrom);
+ 645              		.loc 1 143 9 is_stmt 1 view .LVU172
+ 143:libscpi/src/expression.c ****         SCPI_ParamToInt32(context, &paramFrom, valueFrom);
+ 646              		.loc 1 143 18 is_stmt 0 view .LVU173
+ 647 0028 2727     		movs	r7, #39
+ 648 002a 6F44     		add	r7, r7, sp
+ 649 002c 3B78     		ldrb	r3, [r7]
+ 650 002e 3370     		strb	r3, [r6]
+ 144:libscpi/src/expression.c ****         if (range) {
+ 651              		.loc 1 144 9 is_stmt 1 view .LVU174
+ 652 0030 109A     		ldr	r2, [sp, #64]
+ARM GAS  /tmp/ccPmqPXA.s 			page 19
+
+
+ 653 0032 06A9     		add	r1, sp, #24
+ 654 0034 2800     		movs	r0, r5
+ 655              	.LVL74:
+ 144:libscpi/src/expression.c ****         if (range) {
+ 656              		.loc 1 144 9 is_stmt 0 view .LVU175
+ 657 0036 FFF7FEFF 		bl	SCPI_ParamToInt32
+ 658              	.LVL75:
+ 145:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &paramTo, valueTo);
+ 659              		.loc 1 145 9 is_stmt 1 view .LVU176
+ 145:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &paramTo, valueTo);
+ 660              		.loc 1 145 13 is_stmt 0 view .LVU177
+ 661 003a 3B78     		ldrb	r3, [r7]
+ 145:libscpi/src/expression.c ****             SCPI_ParamToInt32(context, &paramTo, valueTo);
+ 662              		.loc 1 145 12 view .LVU178
+ 663 003c 002B     		cmp	r3, #0
+ 664 003e F0D0     		beq	.L43
+ 146:libscpi/src/expression.c ****         }
+ 665              		.loc 1 146 13 is_stmt 1 view .LVU179
+ 666 0040 119A     		ldr	r2, [sp, #68]
+ 667 0042 03A9     		add	r1, sp, #12
+ 668 0044 2800     		movs	r0, r5
+ 669 0046 FFF7FEFF 		bl	SCPI_ParamToInt32
+ 670              	.LVL76:
+ 671 004a EAE7     		b	.L43
+ 672              		.cfi_endproc
+ 673              	.LFE2:
+ 675              		.section	.text.SCPI_ExprNumericListEntryDouble,"ax",%progbits
+ 676              		.align	1
+ 677              		.global	SCPI_ExprNumericListEntryDouble
+ 678              		.syntax unified
+ 679              		.code	16
+ 680              		.thumb_func
+ 681              		.fpu softvfp
+ 683              	SCPI_ExprNumericListEntryDouble:
+ 684              	.LVL77:
+ 685              	.LFB3:
+ 166:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 686              		.loc 1 166 168 view -0
+ 687              		.cfi_startproc
+ 688              		@ args = 8, pretend = 0, frame = 32
+ 689              		@ frame_needed = 0, uses_anonymous_args = 0
+ 166:libscpi/src/expression.c ****     scpi_expr_result_t res;
+ 690              		.loc 1 166 168 is_stmt 0 view .LVU181
+ 691 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 692              	.LCFI11:
+ 693              		.cfi_def_cfa_offset 20
+ 694              		.cfi_offset 4, -20
+ 695              		.cfi_offset 5, -16
+ 696              		.cfi_offset 6, -12
+ 697              		.cfi_offset 7, -8
+ 698              		.cfi_offset 14, -4
+ 699 0002 8BB0     		sub	sp, sp, #44
+ 700              	.LCFI12:
+ 701              		.cfi_def_cfa_offset 64
+ 702 0004 0500     		movs	r5, r0
+ 703 0006 1E00     		movs	r6, r3
+ 167:libscpi/src/expression.c ****     scpi_bool_t range = FALSE;
+ARM GAS  /tmp/ccPmqPXA.s 			page 20
+
+
+ 704              		.loc 1 167 5 is_stmt 1 view .LVU182
+ 168:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 705              		.loc 1 168 5 view .LVU183
+ 168:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 706              		.loc 1 168 17 is_stmt 0 view .LVU184
+ 707 0008 2723     		movs	r3, #39
+ 708              	.LVL78:
+ 168:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 709              		.loc 1 168 17 view .LVU185
+ 710 000a 6B44     		add	r3, r3, sp
+ 711 000c 0020     		movs	r0, #0
+ 712              	.LVL79:
+ 168:libscpi/src/expression.c ****     scpi_parameter_t paramFrom;
+ 713              		.loc 1 168 17 view .LVU186
+ 714 000e 1870     		strb	r0, [r3]
+ 169:libscpi/src/expression.c ****     scpi_parameter_t paramTo;
+ 715              		.loc 1 169 5 is_stmt 1 view .LVU187
+ 170:libscpi/src/expression.c **** 
+ 716              		.loc 1 170 5 view .LVU188
+ 172:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 717              		.loc 1 172 5 view .LVU189
+ 172:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 718              		.loc 1 172 11 is_stmt 0 view .LVU190
+ 719 0010 03A8     		add	r0, sp, #12
+ 720 0012 0190     		str	r0, [sp, #4]
+ 721 0014 06A8     		add	r0, sp, #24
+ 722 0016 0090     		str	r0, [sp]
+ 723 0018 2800     		movs	r0, r5
+ 724 001a FFF7FEFF 		bl	SCPI_ExprNumericListEntry
+ 725              	.LVL80:
+ 172:libscpi/src/expression.c ****     if (res == SCPI_EXPR_OK) {
+ 726              		.loc 1 172 11 view .LVU191
+ 727 001e 041E     		subs	r4, r0, #0
+ 728              	.LVL81:
+ 173:libscpi/src/expression.c ****         *isRange = range;
+ 729              		.loc 1 173 5 is_stmt 1 view .LVU192
+ 173:libscpi/src/expression.c ****         *isRange = range;
+ 730              		.loc 1 173 8 is_stmt 0 view .LVU193
+ 731 0020 02D0     		beq	.L47
+ 732              	.LVL82:
+ 733              	.L46:
+ 181:libscpi/src/expression.c **** }
+ 734              		.loc 1 181 5 is_stmt 1 view .LVU194
+ 182:libscpi/src/expression.c **** 
+ 735              		.loc 1 182 1 is_stmt 0 view .LVU195
+ 736 0022 2000     		movs	r0, r4
+ 737 0024 0BB0     		add	sp, sp, #44
+ 738              		@ sp needed
+ 739              	.LVL83:
+ 740              	.LVL84:
+ 182:libscpi/src/expression.c **** 
+ 741              		.loc 1 182 1 view .LVU196
+ 742 0026 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 743              	.LVL85:
+ 744              	.L47:
+ 174:libscpi/src/expression.c ****         SCPI_ParamToDouble(context, &paramFrom, valueFrom);
+ 745              		.loc 1 174 9 is_stmt 1 view .LVU197
+ARM GAS  /tmp/ccPmqPXA.s 			page 21
+
+
+ 174:libscpi/src/expression.c ****         SCPI_ParamToDouble(context, &paramFrom, valueFrom);
+ 746              		.loc 1 174 18 is_stmt 0 view .LVU198
+ 747 0028 2727     		movs	r7, #39
+ 748 002a 6F44     		add	r7, r7, sp
+ 749 002c 3B78     		ldrb	r3, [r7]
+ 750 002e 3370     		strb	r3, [r6]
+ 175:libscpi/src/expression.c ****         if (range) {
+ 751              		.loc 1 175 9 is_stmt 1 view .LVU199
+ 752 0030 109A     		ldr	r2, [sp, #64]
+ 753 0032 06A9     		add	r1, sp, #24
+ 754 0034 2800     		movs	r0, r5
+ 755              	.LVL86:
+ 175:libscpi/src/expression.c ****         if (range) {
+ 756              		.loc 1 175 9 is_stmt 0 view .LVU200
+ 757 0036 FFF7FEFF 		bl	SCPI_ParamToDouble
+ 758              	.LVL87:
+ 176:libscpi/src/expression.c ****             SCPI_ParamToDouble(context, &paramTo, valueTo);
+ 759              		.loc 1 176 9 is_stmt 1 view .LVU201
+ 176:libscpi/src/expression.c ****             SCPI_ParamToDouble(context, &paramTo, valueTo);
+ 760              		.loc 1 176 13 is_stmt 0 view .LVU202
+ 761 003a 3B78     		ldrb	r3, [r7]
+ 176:libscpi/src/expression.c ****             SCPI_ParamToDouble(context, &paramTo, valueTo);
+ 762              		.loc 1 176 12 view .LVU203
+ 763 003c 002B     		cmp	r3, #0
+ 764 003e F0D0     		beq	.L46
+ 177:libscpi/src/expression.c ****         }
+ 765              		.loc 1 177 13 is_stmt 1 view .LVU204
+ 766 0040 119A     		ldr	r2, [sp, #68]
+ 767 0042 03A9     		add	r1, sp, #12
+ 768 0044 2800     		movs	r0, r5
+ 769 0046 FFF7FEFF 		bl	SCPI_ParamToDouble
+ 770              	.LVL88:
+ 771 004a EAE7     		b	.L46
+ 772              		.cfi_endproc
+ 773              	.LFE3:
+ 775              		.section	.text.SCPI_ExprChannelListEntry,"ax",%progbits
+ 776              		.align	1
+ 777              		.global	SCPI_ExprChannelListEntry
+ 778              		.syntax unified
+ 779              		.code	16
+ 780              		.thumb_func
+ 781              		.fpu softvfp
+ 783              	SCPI_ExprChannelListEntry:
+ 784              	.LVL89:
+ 785              	.LFB6:
+ 255:libscpi/src/expression.c **** 
+ 256:libscpi/src/expression.c **** /**
+ 257:libscpi/src/expression.c ****  * Parse one list entry at specific position e.g. "1!2:5!6"
+ 258:libscpi/src/expression.c ****  * @param context
+ 259:libscpi/src/expression.c ****  * @param param
+ 260:libscpi/src/expression.c ****  * @param index
+ 261:libscpi/src/expression.c ****  * @param isRange return true if it is range
+ 262:libscpi/src/expression.c ****  * @param valuesFrom return array of values from
+ 263:libscpi/src/expression.c ****  * @param valuesTo return array of values to
+ 264:libscpi/src/expression.c ****  * @param length length of values arrays
+ 265:libscpi/src/expression.c ****  * @param dimensions real number of dimensions
+ 266:libscpi/src/expression.c ****  */
+ARM GAS  /tmp/ccPmqPXA.s 			page 22
+
+
+ 267:libscpi/src/expression.c **** scpi_expr_result_t SCPI_ExprChannelListEntry(scpi_t * context, scpi_parameter_t * param, int index,
+ 786              		.loc 1 267 202 view -0
+ 787              		.cfi_startproc
+ 788              		@ args = 16, pretend = 0, frame = 24
+ 789              		@ frame_needed = 0, uses_anonymous_args = 0
+ 790              		.loc 1 267 202 is_stmt 0 view .LVU206
+ 791 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 792              	.LCFI13:
+ 793              		.cfi_def_cfa_offset 20
+ 794              		.cfi_offset 4, -20
+ 795              		.cfi_offset 5, -16
+ 796              		.cfi_offset 6, -12
+ 797              		.cfi_offset 7, -8
+ 798              		.cfi_offset 14, -4
+ 799 0002 CE46     		mov	lr, r9
+ 800 0004 00B5     		push	{lr}
+ 801              	.LCFI14:
+ 802              		.cfi_def_cfa_offset 24
+ 803              		.cfi_offset 9, -24
+ 804 0006 8AB0     		sub	sp, sp, #40
+ 805              	.LCFI15:
+ 806              		.cfi_def_cfa_offset 64
+ 807 0008 0600     		movs	r6, r0
+ 808 000a 1700     		movs	r7, r2
+ 809 000c 9946     		mov	r9, r3
+ 268:libscpi/src/expression.c ****     lex_state_t lex;
+ 810              		.loc 1 268 5 is_stmt 1 view .LVU207
+ 269:libscpi/src/expression.c ****     int i;
+ 811              		.loc 1 269 5 view .LVU208
+ 270:libscpi/src/expression.c ****     scpi_expr_result_t res = SCPI_EXPR_OK;
+ 812              		.loc 1 270 5 view .LVU209
+ 813              	.LVL90:
+ 271:libscpi/src/expression.c ****     scpi_token_t token;
+ 814              		.loc 1 271 5 view .LVU210
+ 272:libscpi/src/expression.c **** 
+ 273:libscpi/src/expression.c ****     if (!isRange || !param || !dimensions || (length && (!valuesFrom || !valuesTo))) {
+ 815              		.loc 1 273 5 view .LVU211
+ 816              		.loc 1 273 8 is_stmt 0 view .LVU212
+ 817 000e 002B     		cmp	r3, #0
+ 818 0010 17D0     		beq	.L49
+ 819              		.loc 1 273 18 discriminator 1 view .LVU213
+ 820 0012 0029     		cmp	r1, #0
+ 821 0014 15D0     		beq	.L49
+ 822              		.loc 1 273 28 discriminator 2 view .LVU214
+ 823 0016 139B     		ldr	r3, [sp, #76]
+ 824              	.LVL91:
+ 825              		.loc 1 273 28 discriminator 2 view .LVU215
+ 826 0018 002B     		cmp	r3, #0
+ 827 001a 12D0     		beq	.L49
+ 828              		.loc 1 273 43 discriminator 3 view .LVU216
+ 829 001c 129B     		ldr	r3, [sp, #72]
+ 830 001e 002B     		cmp	r3, #0
+ 831 0020 05D0     		beq	.L50
+ 832              		.loc 1 273 54 discriminator 4 view .LVU217
+ 833 0022 109B     		ldr	r3, [sp, #64]
+ 834 0024 002B     		cmp	r3, #0
+ 835 0026 0CD0     		beq	.L49
+ARM GAS  /tmp/ccPmqPXA.s 			page 23
+
+
+ 836              		.loc 1 273 70 discriminator 5 view .LVU218
+ 837 0028 119B     		ldr	r3, [sp, #68]
+ 838 002a 002B     		cmp	r3, #0
+ 839 002c 09D0     		beq	.L49
+ 840              	.L50:
+ 274:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 275:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 276:libscpi/src/expression.c ****     }
+ 277:libscpi/src/expression.c **** 
+ 278:libscpi/src/expression.c ****     if (param->type != SCPI_TOKEN_PROGRAM_EXPRESSION) {
+ 841              		.loc 1 278 5 is_stmt 1 view .LVU219
+ 842              		.loc 1 278 14 is_stmt 0 view .LVU220
+ 843 002e 0B78     		ldrb	r3, [r1]
+ 844              		.loc 1 278 8 view .LVU221
+ 845 0030 102B     		cmp	r3, #16
+ 846 0032 10D0     		beq	.L52
+ 279:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_DATA_TYPE_ERROR);
+ 847              		.loc 1 279 9 is_stmt 1 view .LVU222
+ 848 0034 6821     		movs	r1, #104
+ 849              	.LVL92:
+ 850              		.loc 1 279 9 is_stmt 0 view .LVU223
+ 851 0036 4942     		rsbs	r1, r1, #0
+ 852 0038 3000     		movs	r0, r6
+ 853              	.LVL93:
+ 854              		.loc 1 279 9 view .LVU224
+ 855 003a FFF7FEFF 		bl	SCPI_ErrorPush
+ 856              	.LVL94:
+ 280:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 857              		.loc 1 280 9 is_stmt 1 view .LVU225
+ 858              		.loc 1 280 16 is_stmt 0 view .LVU226
+ 859 003e 0124     		movs	r4, #1
+ 860 0040 04E0     		b	.L51
+ 861              	.LVL95:
+ 862              	.L49:
+ 274:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 863              		.loc 1 274 9 is_stmt 1 view .LVU227
+ 864 0042 2E49     		ldr	r1, .L65
+ 865              	.LVL96:
+ 274:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 866              		.loc 1 274 9 is_stmt 0 view .LVU228
+ 867 0044 3000     		movs	r0, r6
+ 868              	.LVL97:
+ 274:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_SYSTEM_ERROR);
+ 869              		.loc 1 274 9 view .LVU229
+ 870 0046 FFF7FEFF 		bl	SCPI_ErrorPush
+ 871              	.LVL98:
+ 275:libscpi/src/expression.c ****     }
+ 872              		.loc 1 275 9 is_stmt 1 view .LVU230
+ 275:libscpi/src/expression.c ****     }
+ 873              		.loc 1 275 16 is_stmt 0 view .LVU231
+ 874 004a 0124     		movs	r4, #1
+ 875              	.LVL99:
+ 876              	.L51:
+ 281:libscpi/src/expression.c ****     }
+ 282:libscpi/src/expression.c **** 
+ 283:libscpi/src/expression.c ****     lex.buffer = param->ptr + 1;
+ 284:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ARM GAS  /tmp/ccPmqPXA.s 			page 24
+
+
+ 285:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ 286:libscpi/src/expression.c **** 
+ 287:libscpi/src/expression.c ****     /* detect channel list expression */
+ 288:libscpi/src/expression.c ****     if (!scpiLex_SpecificCharacter(&lex, &token, '@')) {
+ 289:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 290:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 291:libscpi/src/expression.c ****     }
+ 292:libscpi/src/expression.c **** 
+ 293:libscpi/src/expression.c ****     for (i = 0; i <= index; i++) {
+ 294:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 295:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 296:libscpi/src/expression.c ****             break;
+ 297:libscpi/src/expression.c ****         }
+ 298:libscpi/src/expression.c ****         if (i != index) {
+ 299:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, &token)) {
+ 300:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 301:libscpi/src/expression.c ****                 break;
+ 302:libscpi/src/expression.c ****             }
+ 303:libscpi/src/expression.c ****         }
+ 304:libscpi/src/expression.c ****     }
+ 305:libscpi/src/expression.c **** 
+ 306:libscpi/src/expression.c ****     if (res == SCPI_EXPR_ERROR) {
+ 307:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 308:libscpi/src/expression.c ****     }
+ 309:libscpi/src/expression.c ****     if (res == SCPI_EXPR_NO_MORE) {
+ 310:libscpi/src/expression.c ****         if (!scpiLex_IsEos(&lex)) {
+ 311:libscpi/src/expression.c ****             res = SCPI_EXPR_ERROR;
+ 312:libscpi/src/expression.c ****             SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 313:libscpi/src/expression.c ****         }
+ 314:libscpi/src/expression.c ****     }
+ 315:libscpi/src/expression.c ****     return res;
+ 316:libscpi/src/expression.c **** }
+ 877              		.loc 1 316 1 view .LVU232
+ 878 004c 2000     		movs	r0, r4
+ 879 004e 0AB0     		add	sp, sp, #40
+ 880              		@ sp needed
+ 881              	.LVL100:
+ 882              	.LVL101:
+ 883              	.LVL102:
+ 884              		.loc 1 316 1 view .LVU233
+ 885 0050 04BC     		pop	{r2}
+ 886 0052 9146     		mov	r9, r2
+ 887 0054 F0BD     		pop	{r4, r5, r6, r7, pc}
+ 888              	.LVL103:
+ 889              	.L52:
+ 283:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 890              		.loc 1 283 5 is_stmt 1 view .LVU234
+ 283:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 891              		.loc 1 283 29 is_stmt 0 view .LVU235
+ 892 0056 4B68     		ldr	r3, [r1, #4]
+ 893 0058 0133     		adds	r3, r3, #1
+ 283:libscpi/src/expression.c ****     lex.pos = lex.buffer;
+ 894              		.loc 1 283 16 view .LVU236
+ 895 005a 0793     		str	r3, [sp, #28]
+ 284:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ 896              		.loc 1 284 5 is_stmt 1 view .LVU237
+ 284:libscpi/src/expression.c ****     lex.len = param->len - 2;
+ARM GAS  /tmp/ccPmqPXA.s 			page 25
+
+
+ 897              		.loc 1 284 13 is_stmt 0 view .LVU238
+ 898 005c 0893     		str	r3, [sp, #32]
+ 285:libscpi/src/expression.c **** 
+ 899              		.loc 1 285 5 is_stmt 1 view .LVU239
+ 285:libscpi/src/expression.c **** 
+ 900              		.loc 1 285 20 is_stmt 0 view .LVU240
+ 901 005e 8B68     		ldr	r3, [r1, #8]
+ 285:libscpi/src/expression.c **** 
+ 902              		.loc 1 285 26 view .LVU241
+ 903 0060 023B     		subs	r3, r3, #2
+ 285:libscpi/src/expression.c **** 
+ 904              		.loc 1 285 13 view .LVU242
+ 905 0062 0993     		str	r3, [sp, #36]
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 906              		.loc 1 288 5 is_stmt 1 view .LVU243
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 907              		.loc 1 288 10 is_stmt 0 view .LVU244
+ 908 0064 4022     		movs	r2, #64
+ 909              	.LVL104:
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 910              		.loc 1 288 10 view .LVU245
+ 911 0066 04A9     		add	r1, sp, #16
+ 912              	.LVL105:
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 913              		.loc 1 288 10 view .LVU246
+ 914 0068 07A8     		add	r0, sp, #28
+ 915              	.LVL106:
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 916              		.loc 1 288 10 view .LVU247
+ 917 006a FFF7FEFF 		bl	scpiLex_SpecificCharacter
+ 918              	.LVL107:
+ 288:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 919              		.loc 1 288 8 view .LVU248
+ 920 006e 0028     		cmp	r0, #0
+ 921 0070 02D0     		beq	.L63
+ 270:libscpi/src/expression.c ****     scpi_token_t token;
+ 922              		.loc 1 270 24 view .LVU249
+ 923 0072 0024     		movs	r4, #0
+ 293:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 924              		.loc 1 293 12 view .LVU250
+ 925 0074 0025     		movs	r5, #0
+ 926 0076 09E0     		b	.L53
+ 927              	.L63:
+ 289:libscpi/src/expression.c ****         return SCPI_EXPR_ERROR;
+ 928              		.loc 1 289 9 is_stmt 1 view .LVU251
+ 929 0078 AA21     		movs	r1, #170
+ 930 007a 4942     		rsbs	r1, r1, #0
+ 931 007c 3000     		movs	r0, r6
+ 932 007e FFF7FEFF 		bl	SCPI_ErrorPush
+ 933              	.LVL108:
+ 290:libscpi/src/expression.c ****     }
+ 934              		.loc 1 290 9 view .LVU252
+ 290:libscpi/src/expression.c ****     }
+ 935              		.loc 1 290 16 is_stmt 0 view .LVU253
+ 936 0082 0124     		movs	r4, #1
+ 937 0084 E2E7     		b	.L51
+ 938              	.LVL109:
+ARM GAS  /tmp/ccPmqPXA.s 			page 26
+
+
+ 939              	.L64:
+ 294:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 940              		.loc 1 294 15 view .LVU254
+ 941 0086 129B     		ldr	r3, [sp, #72]
+ 942 0088 04E0     		b	.L54
+ 943              	.L56:
+ 293:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 944              		.loc 1 293 29 is_stmt 1 discriminator 2 view .LVU255
+ 293:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 945              		.loc 1 293 30 is_stmt 0 discriminator 2 view .LVU256
+ 946 008a 0135     		adds	r5, r5, #1
+ 947              	.LVL110:
+ 948              	.L53:
+ 293:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 949              		.loc 1 293 17 is_stmt 1 discriminator 1 view .LVU257
+ 293:libscpi/src/expression.c ****         res = channelRange(context, &lex, isRange, valuesFrom, valuesTo, (i == index) ? length : 0,
+ 950              		.loc 1 293 5 is_stmt 0 discriminator 1 view .LVU258
+ 951 008c BD42     		cmp	r5, r7
+ 952 008e 22DC     		bgt	.L55
+ 294:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 953              		.loc 1 294 9 is_stmt 1 view .LVU259
+ 294:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 954              		.loc 1 294 15 is_stmt 0 view .LVU260
+ 955 0090 F9D0     		beq	.L64
+ 956 0092 0023     		movs	r3, #0
+ 957              	.L54:
+ 294:libscpi/src/expression.c ****         if (res != SCPI_EXPR_OK) {
+ 958              		.loc 1 294 15 discriminator 4 view .LVU261
+ 959 0094 139A     		ldr	r2, [sp, #76]
+ 960 0096 0292     		str	r2, [sp, #8]
+ 961 0098 0193     		str	r3, [sp, #4]
+ 962 009a 119B     		ldr	r3, [sp, #68]
+ 963 009c 0093     		str	r3, [sp]
+ 964 009e 109B     		ldr	r3, [sp, #64]
+ 965 00a0 4A46     		mov	r2, r9
+ 966 00a2 07A9     		add	r1, sp, #28
+ 967 00a4 3000     		movs	r0, r6
+ 968 00a6 FFF7FEFF 		bl	channelRange
+ 969              	.LVL111:
+ 970 00aa 041E     		subs	r4, r0, #0
+ 971              	.LVL112:
+ 295:libscpi/src/expression.c ****             break;
+ 972              		.loc 1 295 9 is_stmt 1 discriminator 4 view .LVU262
+ 295:libscpi/src/expression.c ****             break;
+ 973              		.loc 1 295 12 is_stmt 0 discriminator 4 view .LVU263
+ 974 00ac 13D1     		bne	.L55
+ 298:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, &token)) {
+ 975              		.loc 1 298 9 is_stmt 1 view .LVU264
+ 298:libscpi/src/expression.c ****             if (!scpiLex_Comma(&lex, &token)) {
+ 976              		.loc 1 298 12 is_stmt 0 view .LVU265
+ 977 00ae BD42     		cmp	r5, r7
+ 978 00b0 EBD0     		beq	.L56
+ 299:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 979              		.loc 1 299 13 is_stmt 1 view .LVU266
+ 299:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 980              		.loc 1 299 18 is_stmt 0 view .LVU267
+ 981 00b2 04A9     		add	r1, sp, #16
+ARM GAS  /tmp/ccPmqPXA.s 			page 27
+
+
+ 982 00b4 07A8     		add	r0, sp, #28
+ 983              	.LVL113:
+ 299:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 984              		.loc 1 299 18 view .LVU268
+ 985 00b6 FFF7FEFF 		bl	scpiLex_Comma
+ 986              	.LVL114:
+ 299:libscpi/src/expression.c ****                 res = scpiLex_IsEos(&lex) ? SCPI_EXPR_NO_MORE : SCPI_EXPR_ERROR;
+ 987              		.loc 1 299 16 view .LVU269
+ 988 00ba 0028     		cmp	r0, #0
+ 989 00bc E5D1     		bne	.L56
+ 300:libscpi/src/expression.c ****                 break;
+ 990              		.loc 1 300 17 is_stmt 1 view .LVU270
+ 300:libscpi/src/expression.c ****                 break;
+ 991              		.loc 1 300 23 is_stmt 0 view .LVU271
+ 992 00be 07A8     		add	r0, sp, #28
+ 993 00c0 FFF7FEFF 		bl	scpiLex_IsEos
+ 994              	.LVL115:
+ 300:libscpi/src/expression.c ****                 break;
+ 995              		.loc 1 300 63 view .LVU272
+ 996 00c4 0028     		cmp	r0, #0
+ 997 00c6 16D1     		bne	.L62
+ 998 00c8 0134     		adds	r4, r4, #1
+ 999              	.LVL116:
+ 1000              	.L58:
+ 307:libscpi/src/expression.c ****     }
+ 1001              		.loc 1 307 9 is_stmt 1 view .LVU273
+ 1002 00ca AA21     		movs	r1, #170
+ 1003 00cc 4942     		rsbs	r1, r1, #0
+ 1004 00ce 3000     		movs	r0, r6
+ 1005 00d0 FFF7FEFF 		bl	SCPI_ErrorPush
+ 1006              	.LVL117:
+ 1007 00d4 01E0     		b	.L57
+ 1008              	.L55:
+ 1009              	.LVL118:
+ 306:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 1010              		.loc 1 306 5 view .LVU274
+ 306:libscpi/src/expression.c ****         SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 1011              		.loc 1 306 8 is_stmt 0 view .LVU275
+ 1012 00d6 012C     		cmp	r4, #1
+ 1013 00d8 F7D0     		beq	.L58
+ 1014              	.LVL119:
+ 1015              	.L57:
+ 309:libscpi/src/expression.c ****         if (!scpiLex_IsEos(&lex)) {
+ 1016              		.loc 1 309 5 is_stmt 1 view .LVU276
+ 309:libscpi/src/expression.c ****         if (!scpiLex_IsEos(&lex)) {
+ 1017              		.loc 1 309 8 is_stmt 0 view .LVU277
+ 1018 00da 022C     		cmp	r4, #2
+ 1019 00dc B6D1     		bne	.L51
+ 310:libscpi/src/expression.c ****             res = SCPI_EXPR_ERROR;
+ 1020              		.loc 1 310 9 is_stmt 1 view .LVU278
+ 310:libscpi/src/expression.c ****             res = SCPI_EXPR_ERROR;
+ 1021              		.loc 1 310 14 is_stmt 0 view .LVU279
+ 1022 00de 07A8     		add	r0, sp, #28
+ 1023 00e0 FFF7FEFF 		bl	scpiLex_IsEos
+ 1024              	.LVL120:
+ 310:libscpi/src/expression.c ****             res = SCPI_EXPR_ERROR;
+ 1025              		.loc 1 310 12 view .LVU280
+ARM GAS  /tmp/ccPmqPXA.s 			page 28
+
+
+ 1026 00e4 0028     		cmp	r0, #0
+ 1027 00e6 B1D1     		bne	.L51
+ 311:libscpi/src/expression.c ****             SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 1028              		.loc 1 311 13 is_stmt 1 view .LVU281
+ 1029              	.LVL121:
+ 312:libscpi/src/expression.c ****         }
+ 1030              		.loc 1 312 13 view .LVU282
+ 1031 00e8 AA21     		movs	r1, #170
+ 1032 00ea 4942     		rsbs	r1, r1, #0
+ 1033 00ec 3000     		movs	r0, r6
+ 1034 00ee FFF7FEFF 		bl	SCPI_ErrorPush
+ 1035              	.LVL122:
+ 311:libscpi/src/expression.c ****             SCPI_ErrorPush(context, SCPI_ERROR_EXPRESSION_PARSING_ERROR);
+ 1036              		.loc 1 311 17 is_stmt 0 view .LVU283
+ 1037 00f2 013C     		subs	r4, r4, #1
+ 1038 00f4 AAE7     		b	.L51
+ 1039              	.LVL123:
+ 1040              	.L62:
+ 300:libscpi/src/expression.c ****                 break;
+ 1041              		.loc 1 300 63 view .LVU284
+ 1042 00f6 0224     		movs	r4, #2
+ 1043              	.LVL124:
+ 300:libscpi/src/expression.c ****                 break;
+ 1044              		.loc 1 300 63 view .LVU285
+ 1045 00f8 EFE7     		b	.L57
+ 1046              	.L66:
+ 1047 00fa C046     		.align	2
+ 1048              	.L65:
+ 1049 00fc CAFEFFFF 		.word	-310
+ 1050              		.cfi_endproc
+ 1051              	.LFE6:
+ 1053              		.text
+ 1054              	.Letext0:
+ 1055              		.file 2 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stddef.h"
+ 1056              		.file 3 "/usr/lib/gcc/arm-none-eabi/9.2.1/include/stdint.h"
+ 1057              		.file 4 "libscpi/inc/scpi/types.h"
+ 1058              		.file 5 "libscpi/inc/scpi/expression.h"
+ 1059              		.file 6 "/usr/include/newlib/sys/_types.h"
+ 1060              		.file 7 "/usr/include/newlib/sys/reent.h"
+ 1061              		.file 8 "/usr/include/newlib/sys/lock.h"
+ 1062              		.file 9 "libscpi/inc/scpi/parser.h"
+ 1063              		.file 10 "libscpi/inc/scpi/error.h"
+ 1064              		.file 11 "libscpi/src/lexer_private.h"
+ARM GAS  /tmp/ccPmqPXA.s 			page 29
+
+
+DEFINED SYMBOLS
+                            *ABS*:0000000000000000 expression.c
+     /tmp/ccPmqPXA.s:16     .text.numericRange:0000000000000000 $t
+     /tmp/ccPmqPXA.s:23     .text.numericRange:0000000000000000 numericRange
+     /tmp/ccPmqPXA.s:106    .text.channelSpec:0000000000000000 $t
+     /tmp/ccPmqPXA.s:112    .text.channelSpec:0000000000000000 channelSpec
+     /tmp/ccPmqPXA.s:230    .text.channelRange:0000000000000000 $t
+     /tmp/ccPmqPXA.s:236    .text.channelRange:0000000000000000 channelRange
+     /tmp/ccPmqPXA.s:367    .text.SCPI_ExprNumericListEntry:0000000000000000 $t
+     /tmp/ccPmqPXA.s:374    .text.SCPI_ExprNumericListEntry:0000000000000000 SCPI_ExprNumericListEntry
+     /tmp/ccPmqPXA.s:571    .text.SCPI_ExprNumericListEntry:00000000000000a8 $d
+     /tmp/ccPmqPXA.s:576    .text.SCPI_ExprNumericListEntryInt:0000000000000000 $t
+     /tmp/ccPmqPXA.s:583    .text.SCPI_ExprNumericListEntryInt:0000000000000000 SCPI_ExprNumericListEntryInt
+     /tmp/ccPmqPXA.s:676    .text.SCPI_ExprNumericListEntryDouble:0000000000000000 $t
+     /tmp/ccPmqPXA.s:683    .text.SCPI_ExprNumericListEntryDouble:0000000000000000 SCPI_ExprNumericListEntryDouble
+     /tmp/ccPmqPXA.s:776    .text.SCPI_ExprChannelListEntry:0000000000000000 $t
+     /tmp/ccPmqPXA.s:783    .text.SCPI_ExprChannelListEntry:0000000000000000 SCPI_ExprChannelListEntry
+     /tmp/ccPmqPXA.s:1049   .text.SCPI_ExprChannelListEntry:00000000000000fc $d
+
+UNDEFINED SYMBOLS
+scpiLex_DecimalNumericProgramData
+scpiLex_Colon
+SCPI_ParamToInt32
+scpiLex_SpecificCharacter
+SCPI_ErrorPush
+scpiLex_Comma
+scpiLex_IsEos
+SCPI_ParamToDouble
