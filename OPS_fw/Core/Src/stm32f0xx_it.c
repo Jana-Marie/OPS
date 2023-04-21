@@ -56,7 +56,7 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern PCD_HandleTypeDef hpcd_USB_FS;
+// extern PCD_HandleTypeDef hpcd_USB_FS;
 extern DMA_HandleTypeDef hdma_adc;
 extern DMA_HandleTypeDef hdma_i2c2_rx;
 extern DMA_HandleTypeDef hdma_i2c2_tx;
@@ -192,16 +192,16 @@ void TIM2_IRQHandler(void)
 /**
   * @brief This function handles USB global interrupt / USB wake-up interrupt through EXTI line 18.
   */
-void USB_IRQHandler(void)
-{
-  /* USER CODE BEGIN USB_IRQn 0 */
-
-  /* USER CODE END USB_IRQn 0 */
-  HAL_PCD_IRQHandler(&hpcd_USB_FS);
-  /* USER CODE BEGIN USB_IRQn 1 */
-
-  /* USER CODE END USB_IRQn 1 */
-}
+//void USB_IRQHandler(void)
+//{
+//  /* USER CODE BEGIN USB_IRQn 0 */
+//
+//  /* USER CODE END USB_IRQn 0 */
+//  HAL_PCD_IRQHandler(&hpcd_USB_FS);
+//  /* USER CODE BEGIN USB_IRQn 1 */
+//
+//  /* USER CODE END USB_IRQn 1 */
+//}
 
 /* USER CODE BEGIN 1 */
 

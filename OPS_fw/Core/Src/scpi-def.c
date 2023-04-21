@@ -56,7 +56,7 @@ static scpi_result_t OPS_ConfigureOutputEn(scpi_t * context) {
         return SCPI_RES_ERR;
     }
 
-    sprintf(_err, "conf:output:en\tP1=%lf", param1);
+    sprintf(_err, "conf:output:en\tP1=%lf\n", param1);
     CDC_Transmit_FS(_err, 150);
 
     return SCPI_RES_OK;
@@ -77,8 +77,8 @@ static scpi_result_t OPS_ConfigureVoltageDc(scpi_t * context) {
         return SCPI_RES_ERR;
     }
 
-    //sprintf(_err, "conf:volt:dc\tP1=%lf", param1);
-    //CDC_Transmit_FS(_err, 150);
+    sprintf(_err, "conf:volt:dc\tP1=%lf\n", param1);
+    CDC_Transmit_FS(_err, 150);
     MP8862_setVoltageSetpoint_mV(&MP8862, (uint16_t)(param1*1000));
 
     return SCPI_RES_OK;
@@ -99,7 +99,7 @@ static scpi_result_t OPS_ConfigureCurrentDc(scpi_t * context) {
         return SCPI_RES_ERR;
     }
 
-    sprintf(_err, "conf:curr:dc\tP1=%lf", param1);
+    sprintf(_err, "conf:curr:dc\tP1=%lf\n", param1);
     CDC_Transmit_FS(_err, 150);
 
     return SCPI_RES_OK;

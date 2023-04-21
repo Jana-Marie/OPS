@@ -1,9 +1,9 @@
 #include "main.h"
 #include "MP8862.h"
-#include "usbd_cdc_if.h"
-#include "usb_device.h"
-#include "scpi/scpi.h"
-#include "scpi-def.h"
+//#include "usbd_cdc_if.h"
+//#include "usb_device.h"
+//#include "scpi/scpi.h"
+//#include "scpi-def.h"
 
 ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
@@ -28,13 +28,18 @@ struct MP8862_t MP8862;
 uint8_t adc_ready_flag = 0;
 
 struct ops ops;
+uint8_t addr[128];    
 
-extern uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
-extern uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
-uint8_t is_new_data_ready;
-uint16_t new_data_length;
+//extern uint8_t UserRxBufferFS[APP_RX_DATA_SIZE];
+//extern uint8_t UserTxBufferFS[APP_TX_DATA_SIZE];
+//uint8_t is_new_data_ready;
+//uint16_t new_data_length;
 
-uint16_t sine[60] = {0x251c,0x28fd,0x2cd3,0x3094,0x3434,0x37aa,0x3aec,0x3df1,0x40b0,0x4322,0x453f,0x4703,0x4867,0x4968,0x4a04,0x4a38,0x4a04,0x4968,0x4867,0x4703,0x453f,0x4322,0x40b0,0x3df1,0x3aec,0x37aa,0x3434,0x3094,0x2cd3,0x28fd,0x251c,0x213b,0x1d65,0x19a4,0x1604,0x128e,0xf4c,0xc47,0x988,0x716,0x4f9,0x335,0x1d1,0xd0,0x34,0x0,0x34,0xd0,0x1d1,0x335,0x4f9,0x716,0x988,0xc47,0xf4c,0x128e,0x1604,0x19a4,0x1d65,0x213b};
+//uint16_t sine[60] = {0x251c,0x28fd,0x2cd3,0x3094,0x3434,0x37aa,0x3aec,0x3df1,0x40b0,0x4322,0x453f,0x4703,0x4867,0x4968,0x4a04,0x4a38,0x4a04,0x4968,0x4867,0x4703,0x453f,0x4322,0x40b0,0x3df1,0x3aec,0x37aa,0x3434,0x3094,0x2cd3,0x28fd,0x251c,0x213b,0x1d65,0x19a4,0x1604,0x128e,0xf4c,0xc47,0x988,0x716,0x4f9,0x335,0x1d1,0xd0,0x34,0x0,0x34,0xd0,0x1d1,0x335,0x4f9,0x716,0x988,0xc47,0xf4c,0x128e,0x1604,0x19a4,0x1d65,0x213b};
+uint16_t sine[60] = {4500,4970,5436,5891,6330,6750,7145,7511,7844,8141,8397,8611,8780,8902,8975,9000,8975,8902,8780,8611,8397,8141,7844,7511,7145,6750,6330,5891,5436,4970,4500,4030,3564,3109,2670,2250,1855,1489,1156,859,603,389,220,98,25,0,25,98,220,389,603,859,1156,1489,1855,2250,2670,3109,3564,4030};
+
+
+uint8_t reg1,reg2,go,stat,vlo,vhi,ir;
 
 int main(void)
 {
@@ -47,16 +52,18 @@ int main(void)
   MX_ADC_Init();
   MX_TIM1_Init();
   MX_TIM2_Init();
-  MX_USB_DEVICE_Init();
+  //MX_USB_DEVICE_Init();
 
   HAL_GPIO_WritePin(GPIOB, LED_GREEN_Pin, 1);
   HAL_GPIO_WritePin(GPIOB, LED_RED_Pin, 1);
 
   HAL_Delay(100);
 
+
   MP8862_init(&MP8862, &hi2c2, MP8862_ADDR_0x69);
-  MP8862_setVoltageSetpoint_mV(&MP8862, 0);
-  MP8862_setCurrentLimit_mA(&MP8862, 2000);
+  MP8862_setVoltageSetpoint_mV(&MP8862, 400);
+  MP8862_setCurrentLimit_mA(&MP8862, 6000);
+  HAL_Delay(50);
   uint8_t isReady = MP8862_setEnable(&MP8862, 1);
 
   if(isReady){
@@ -69,36 +76,37 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc, adc, 8);
   HAL_TIM_Base_Start_IT(&htim2);
 
-  SCPI_Init(&scpi_context,
-    scpi_commands,
-    &scpi_interface,
-    scpi_units_def,
-    SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
-    scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
-    scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
+  //SCPI_Init(&scpi_context,
+  //  scpi_commands,
+  //  &scpi_interface,
+  //  scpi_units_def,
+  //  SCPI_IDN1, SCPI_IDN2, SCPI_IDN3, SCPI_IDN4,
+  //  scpi_input_buffer, SCPI_INPUT_BUFFER_LENGTH,
+  //  scpi_error_queue_data, SCPI_ERROR_QUEUE_SIZE);
 
   while (1)
   {
+
+    //HAL_Delay(25);
+    //MP8862_read(&MP8862, MP8862_REG_CTL1 , &reg1, 1 );
+    //MP8862_read(&MP8862, MP8862_REG_CTL2 , &reg2, 1 );
+    //MP8862_read(&MP8862, MP8862_REG_VOUT_GO , &go, 1 );
+    //MP8862_read(&MP8862, MP8862_REG_STATUS , &stat, 1 );
+    //MP8862_read(&MP8862, MP8862_REG_VOUT_L , &vlo, 1 );
+    //MP8862_read(&MP8862, MP8862_REG_VOUT_H , &vhi, 1 );
+    //MP8862_readCurrentLimit_mA(&MP8862, &ir);
+    //MP8862_read(&MP8862, MP8862_REG_INTERRUPT , &ir, 1 );
+    //MP8862_write(&MP8862, MP8862_REG_INTERRUPT , 0xff, 1 );
+    //char _err[150] = {0};
+    //sprintf(_err, "DBG\tR1=%d\tR2=%d\tgo=%d\tstat=%d\tlo=%d\thi=%d\tir=%d\n\r", reg1,reg2,go,stat,vlo,vhi,ir);
+    //CDC_Transmit_FS(_err, 150);
+
     // Sine-Ramp for testing
     for(uint8_t i = 0; i < 60; i++){
       MP8862_setVoltageSetpoint_mV(&MP8862, sine[i]);
       HAL_GPIO_TogglePin(GPIOB, LED_ACT_Pin);
       HAL_Delay(25);
-      //uint8_t reg1,reg2,go,stat,vlo,vhi,ir;
-      //MP8862_read(&MP8862, MP8862_REG_CTL1 , &reg1, 1 );
-      //MP8862_read(&MP8862, MP8862_REG_CTL2 , &reg2, 1 );
-      //MP8862_read(&MP8862, MP8862_REG_VOUT_GO , &go, 1 );
-      //MP8862_read(&MP8862, MP8862_REG_STATUS , &stat, 1 );
-      //MP8862_read(&MP8862, MP8862_REG_VOUT_L , &vlo, 1 );
-      //MP8862_read(&MP8862, MP8862_REG_VOUT_H , &vhi, 1 );
-      //MP8862_readCurrentLimit_mA(&MP8862, &ir);
-      //MP8862_read(&MP8862, MP8862_REG_INTERRUPT , &ir, 1 );
-      //MP8862_write(&MP8862, MP8862_REG_INTERRUPT , 0xff, 1 );
-      //char _err[150] = {0};
-      //sprintf(_err, "DBG\tR1=%d\tR2=%d\tgo=%d\tstat=%d\tlo=%d\thi=%d\tir=%d\n\r", reg1,reg2,go,stat,vlo,vhi,ir);
-      //CDC_Transmit_FS(_err, 150);
     }
-    HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 0);
 
     if (adc_ready_flag) {
       ops.vbus = adc[2]/4095.0*3.3*7.471;
@@ -106,13 +114,26 @@ int main(void)
       ops.iout = (adc[0]/4095.0*3.3*1.659)/(0.01*(2370/33));
       ops.tref = (((adc[4]/4095.0)*3.3)-0.5)/0.01;
       ops.tc   = ((adc[3]-120)*92)/1000+ops.tref;
-    }
 
-    if (is_new_data_ready) {
-      HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 1);
-      SCPI_Input(&scpi_context, UserRxBufferFS, new_data_length);
-      is_new_data_ready = 0;
     }
+      for (uint8_t i=1; i<=127; i++) {
+    HAL_StatusTypeDef result;
+    result = HAL_I2C_IsDeviceReady(&hi2c2, (uint16_t)(i<<1), 4, 4);
+    if (result == HAL_OK) {
+      // If in this scope, i == device on bus, do whatever you want or need
+      addr[i] = 1;
+      //print(i);
+    }
+    HAL_Delay(1);
+  }
+
+
+    //if (is_new_data_ready) {
+    //  HAL_GPIO_WritePin(GPIOB, LED_ACT_Pin, 1);
+    //  CDC_Transmit_FS(UserRxBufferFS, new_data_length);
+    //  SCPI_Input(&scpi_context, UserRxBufferFS, new_data_length);
+    //  is_new_data_ready = 0;
+    //}
   }
 }
 

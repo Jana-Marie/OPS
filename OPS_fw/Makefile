@@ -40,10 +40,6 @@ Core/Src/main.c \
 Core/Src/MP8862.c \
 Core/Src/stm32f0xx_it.c \
 Core/Src/stm32f0xx_hal_msp.c \
-USB_DEVICE/App/usb_device.c \
-USB_DEVICE/App/usbd_desc.c \
-USB_DEVICE/App/usbd_cdc_if.c \
-USB_DEVICE/Target/usbd_conf.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_ll_usb.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pcd.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pcd_ex.c \
@@ -64,24 +60,28 @@ Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c \
 Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c \
-Core/Src/system_stm32f0xx.c \
-Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
-Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
-Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
-Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c
+Core/Src/system_stm32f0xx.c
 
-C_SOURCES += \
-Src/scpi-def.c \
-libscpi/src/error.c \
-libscpi/src/expression.c \
-libscpi/src/fifo.c \
-libscpi/src/ieee488.c \
-libscpi/src/lexer.c \
-libscpi/src/minimal.c \
-libscpi/src/parser.c \
-libscpi/src/units.c \
-libscpi/src/utils.c \
-Src/scpi-com.c
+# C_SOURCES += \
+# Src/scpi-def.c \
+# libscpi/src/error.c \
+# libscpi/src/expression.c \
+# libscpi/src/fifo.c \
+# libscpi/src/ieee488.c \
+# libscpi/src/lexer.c \
+# libscpi/src/minimal.c \
+# libscpi/src/parser.c \
+# libscpi/src/units.c \
+# libscpi/src/utils.c \
+# Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_core.c \
+# Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ctlreq.c \
+# Middlewares/ST/STM32_USB_Device_Library/Core/Src/usbd_ioreq.c \
+# Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Src/usbd_cdc.c \
+# USB_DEVICE/App/usb_device.c \
+# USB_DEVICE/App/usbd_desc.c \
+# USB_DEVICE/App/usbd_cdc_if.c \
+# USB_DEVICE/Target/usbd_conf.c
+# Src/scpi-com.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -137,18 +137,18 @@ AS_INCLUDES =
 
 # C includes
 C_INCLUDES =  \
--IUSB_DEVICE/App \
--IUSB_DEVICE/Target \
 -ICore/Inc \
 -IDrivers/STM32F0xx_HAL_Driver/Inc \
 -IDrivers/STM32F0xx_HAL_Driver/Inc/Legacy \
--IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc \
--IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
 -IDrivers/CMSIS/Device/ST/STM32F0xx/Include \
 -IDrivers/CMSIS/Include
 
-C_INCLUDES +=  \
--Ilibscpi/inc \
+#C_INCLUDES +=  \
+#-IUSB_DEVICE/App \
+#-IUSB_DEVICE/Target \
+#-IMiddlewares/ST/STM32_USB_Device_Library/Core/Inc \
+#-IMiddlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc \
+#-Ilibscpi/inc \
 
 # compile gcc flags
 ASFLAGS = $(MCU) $(AS_DEFS) $(AS_INCLUDES) $(OPT) -Wall -fdata-sections -ffunction-sections

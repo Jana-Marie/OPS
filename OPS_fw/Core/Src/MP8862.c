@@ -12,7 +12,7 @@ uint8_t MP8862_init(struct MP8862_t *_MP8862, I2C_HandleTypeDef *_hI2C, uint8_t 
     _MP8862->hI2C = _hI2C;
     _MP8862->deviceAddress = addr;
     uint8_t initialized   = MP8862_isReady(_MP8862);
-    _MP8862->VOUT_soft_limit_mV = 22000;
+    _MP8862->VOUT_soft_limit_mV = 9000;
     _MP8862->IOUT_soft_limit_mA = 3000;
     return initialized;
 }
