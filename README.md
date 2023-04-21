@@ -7,7 +7,7 @@ OPS is a matchbox sized 65W CC/CV lab power supply. It is controlled by SCPI and
 <table>
   <tbody>
     <tr>
-      <td>
+      <td colspan="2">
         <img src="images/1.jpg"/>
       </td>
     </tr>
